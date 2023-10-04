@@ -9,10 +9,8 @@
 
     <ItemGroup>
       <Content Include="Moist.g4">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
-
 
     <ItemGroup>
       <PackageReference Include="Antlr4" Version="4.6.6">
