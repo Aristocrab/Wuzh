@@ -6,9 +6,9 @@ namespace Moist;
 
 public class MoistInterpreter
 {
-    private readonly MoistVisitor _visitor;
-    private readonly MoistParser.ProgramContext _programContext;
-    private bool _error = false;
+    private readonly MoistVisitor _visitor = null!;
+    private readonly MoistParser.ProgramContext _programContext = null!;
+    private readonly bool _error;
 
     public MoistInterpreter(string input)
     {
