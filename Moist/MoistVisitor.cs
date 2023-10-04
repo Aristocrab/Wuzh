@@ -311,11 +311,6 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 return int.Parse(context.basicTypeValue().Integer().GetText());
             }
                 
-            if (context.basicTypeValue().Integer() != null)
-            {
-                return int.Parse(context.basicTypeValue().Integer().GetText());
-            }
-                
             if (context.basicTypeValue().Double() != null)
             {
                 return decimal.Parse(context.basicTypeValue().Double().GetText(), CultureInfo.InvariantCulture);
@@ -358,14 +353,6 @@ public class MoistVisitor : MoistBaseVisitor<object>
             return Visit(context.expression());
         }
             
-        // if(context.value().Length > 0)
-        // {
-        //     var left = Visit(context.value(0));
-        //     var right = Visit(context.value(1));
-        //     var sign = context.comparisonSign().GetText();
-        //     return VisitComparison(context, left, right, sign);
-        // }
-
         if (context.Identificator() != null)
         {
             var variableName = context.Identificator().GetText();
@@ -374,8 +361,6 @@ public class MoistVisitor : MoistBaseVisitor<object>
             {
                 return variable.Value;
             }
-
-            Console.WriteLine("zzz");
 
             throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
@@ -449,15 +434,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 context.Start.Column);
         }
         VisitDeclaration(declaration);
-            
-        // var variableName = declaration.Identificator().GetText();
-        // if (_variables.TryGetValue(variableName, out var variable) && variable.IsConstant)
-        // {
-        //     throw _interpreterExceptionsFactory.LoopVariableCanNotBeConstant(variableName, 
-        //         declaration.Start.Line, 
-        //         declaration.Start.Column);
-        // }
-            
+        
         var expression = context.expression();
             
         if (expression is null)
