@@ -17,7 +17,7 @@ public class LexerErrorListener : IAntlrErrorListener<int>
         var mess = InterpreterExceptionsFactory.GetLineWithErrorPosition(line, charPositionInLine, _input);
         
         var token = msg.Replace("token recognition error at: ", "");
-        mess += $"({line}:{charPositionInLine}) Error: token {token} was not recognized";
+        mess += $"({line}:{charPositionInLine}) Error: token {token} was not recognized.";
         
         throw new InterpreterException(mess);
     }

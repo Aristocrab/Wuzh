@@ -19,9 +19,10 @@ public class ParserErrorListener : IAntlrErrorListener<IToken>
         if (msg.Contains("missing"))
         {
             msg = msg.Replace("at", "before");
+            msg = msg.Replace("before '<EOF>'", "at the end of the file");
         }
         
-        mess += $"({line}:{charPositionInLine}) Error: {msg}";
+        mess += $"({line}:{charPositionInLine}) Error: {msg}.";
         
         throw new InterpreterException(mess);
     }
