@@ -1,0 +1,12 @@
+# Recursive factorial function
+func factorial(n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+# Calculate and print the factorial of 5
+result := factorial(5);
+PrintLine("Factorial of 5 is: " + result);

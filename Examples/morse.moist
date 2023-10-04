@@ -1,0 +1,163 @@
+func Split(input, delimiter) {
+   parts := [];
+   currentPart := "";
+
+   i := 0;
+   char := " ";
+   while (i < Length(input)) {
+     char = input[i];
+     if (char == delimiter) {
+         if (Length(currentPart) > 0) {
+             Append(parts, currentPart);
+         }
+         currentPart = "";
+     } else {
+         currentPart = currentPart + char;
+     }
+     i = i + 1;
+   }
+
+   if (Length(currentPart) > 0) {
+     Append(parts, currentPart);
+   }
+
+   return parts;
+}
+
+# Function to decode Morse code
+func decodeMorseCode(morseCode) {
+    words := Split(morseCode, "   ");
+    word := " ";
+    decodedMessage := "";
+
+    char := " ";
+
+    for (word in words) {
+        chars := Split(word, " ");  # Split word into characters
+        decodedWord := "";
+
+        for (char in chars) {
+            if (char == ".-") {
+                decodedWord = decodedWord + "A";
+            }
+             if (char == "-...") {
+                decodedWord = decodedWord + "B";
+            }
+             if (char == "-.-.") {
+                decodedWord = decodedWord + "C";
+            }
+             if (char == "-..") {
+                decodedWord = decodedWord + "D";
+            }
+             if (char == ".") {
+                decodedWord = decodedWord + "E";
+            }
+             if (char == "..-.") {
+                decodedWord = decodedWord + "F";
+            }
+             if (char == "--.") {
+                decodedWord = decodedWord + "G";
+            }
+             if (char == "....") {
+                decodedWord = decodedWord + "H";
+            }
+             if (char == "..") {
+                decodedWord = decodedWord + "I";
+            }
+             if (char == ".---") {
+                decodedWord = decodedWord + "J";
+            }
+             if (char == "-.-") {
+                decodedWord = decodedWord + "K";
+            }
+             if (char == ".-..") {
+                decodedWord = decodedWord + "L";
+            }
+             if (char == "--") {
+                decodedWord = decodedWord + "M";
+            }
+             if (char == "-.") {
+                decodedWord = decodedWord + "N";
+            }
+             if (char == "---") {
+                decodedWord = decodedWord + "O";
+            }
+             if (char == ".--.") {
+                decodedWord = decodedWord + "P";
+            }
+             if (char == "--.-") {
+                decodedWord = decodedWord + "Q";
+            }
+             if (char == ".-.") {
+                decodedWord = decodedWord + "R";
+            }
+             if (char == "...") {
+                decodedWord = decodedWord + "S";
+            }
+             if (char == "-") {
+                decodedWord = decodedWord + "T";
+            }
+             if (char == "..-") {
+                decodedWord = decodedWord + "U";
+            }
+             if (char == "...-") {
+                decodedWord = decodedWord + "V";
+            }
+             if (char == ".--") {
+                decodedWord = decodedWord + "W";
+            }
+             if (char == "-..-") {
+                decodedWord = decodedWord + "X";
+            }
+             if (char == "-.--") {
+                decodedWord = decodedWord + "Y";
+            }
+             if (char == "--..") {
+                decodedWord = decodedWord + "Z";
+            }
+             if (char == "-----") {
+                decodedWord = decodedWord + "0";
+            }
+             if (char == ".----") {
+                decodedWord = decodedWord + "1";
+            }
+             if (char == "..---") {
+                decodedWord = decodedWord + "2";
+            }
+             if (char == "...--") {
+                decodedWord = decodedWord + "3";
+            }
+             if (char == "....-") {
+                decodedWord = decodedWord + "4";
+            }
+             if (char == ".....") {
+                decodedWord = decodedWord + "5";
+            }
+             if (char == "-....") {
+                decodedWord = decodedWord + "6";
+            }
+             if (char == "--...") {
+                decodedWord = decodedWord + "7";
+            }
+             if (char == "---..") {
+                decodedWord = decodedWord + "8";
+            }
+             if (char == "----.") {
+                decodedWord = decodedWord + "9";
+            } 
+            else {
+                decodedWord = decodedWord + " ";
+            }
+        }
+
+        decodedMessage = decodedMessage + decodedWord + " ";
+    }
+
+    return decodedMessage;
+}
+
+morseMessage := "... --- ...";
+decodedMessage := decodeMorseCode(morseMessage);
+
+PrintLine("Initial message: " + morseMessage);
+PrintLine("Decoded message: " + decodedMessage);
