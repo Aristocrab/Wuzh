@@ -8,6 +8,7 @@
 
 ## Приклади
 
+[Examples/](https://github.com/Aristocrab/Moist/tree/main/Examples)
 
 ## Основні правила
 
