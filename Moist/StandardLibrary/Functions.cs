@@ -1,4 +1,5 @@
-﻿using Moist.Models;
+﻿using System.Text;
+using Moist.Models;
 
 namespace Moist.StandardLibrary;
 
@@ -8,7 +9,7 @@ public static class Functions
     {
         if (value is List<object> list)
         {
-            Console.WriteLine($"[{string.Join(", ", list)}]");
+            Console.WriteLine(GetListString(list));
         }
         else
         {
@@ -29,7 +30,7 @@ public static class Functions
     {
         if (value is List<object> list)
         {
-            Console.Write($"[{string.Join(", ", list)}]");
+            Console.Write(GetListString(list));
         }
         else
         {
@@ -37,6 +38,32 @@ public static class Functions
         }
         
         return Unit.Value;
+    }
+    
+    private static string GetListString(List<object> list)
+    {
+        var sb = new StringBuilder();
+        
+        sb.Append('[');
+
+        foreach (var elem in list)
+        {
+            if (elem is string str)
+            {
+                sb.Append($"\"{str}\"");
+            }
+            else
+            {
+                 sb.Append(elem);
+            }
+            
+            sb.Append(", ");
+        }
+        
+        sb.Remove(sb.Length - 2, 2);
+        sb.Append(']');
+        
+        return sb.ToString();
     }
     
     public static string ReadLine()

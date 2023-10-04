@@ -26,11 +26,14 @@ public class Variable
     
     public bool IsConstant { get; }
     
-    public Variable(string name, object value, BasicType basicType, bool isConstant)
+    public string Caller { get; }
+    
+    public Variable(string name, object value, BasicType basicType, bool isConstant, string caller = "$global")
     {
         Name = name;
         _value = value;
         BasicType = basicType;
         IsConstant = isConstant;
+        Caller = caller;
     }
 }

@@ -16,7 +16,7 @@ indexAssignment: Identificator '[' index ']' '=' expression;
 
 expression: ExclamationMark? multiplyExpression (Plus multiplyExpression | Minus multiplyExpression)* (comparisonRightSide)?;
 
-multiplyExpression: value (Multiply value | Divide value)*;
+multiplyExpression: value (Multiply value | Divide value | FloorDivide value | Remainder value)*;
 
 value: Identificator
     | basicTypeValue
@@ -65,6 +65,8 @@ Plus: '+';
 Minus: '-';
 Multiply: '*';
 Divide: '/';
+FloorDivide: '//';
+Remainder: '%';
 GreaterThan: '>';
 GreaterOrEqual: '>=';
 LessThan: '<';
