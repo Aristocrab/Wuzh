@@ -10,9 +10,9 @@ public class ParserErrorListener : IAntlrErrorListener<IToken>
     {
         _input = input;
     }
-    
-    public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine,
-        string msg, RecognitionException e)
+
+    public void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg,
+        RecognitionException e)
     {
         var mess = InterpreterExceptionsFactory.GetLineWithErrorPosition(line, charPositionInLine, _input);
 

@@ -6,7 +6,7 @@ if(args.Length == 0)
 {
     input = 
     """
-    a := "Usage: moist.exe <file>"
+    a := "Usage: moist.exe <file>";
     Print(a);
     """;
 }

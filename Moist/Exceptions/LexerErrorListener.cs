@@ -10,9 +10,9 @@ public class LexerErrorListener : IAntlrErrorListener<int>
     {
         _input = input;
     }
-    
-    public void SyntaxError(TextWriter output, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine,
-        string msg, RecognitionException e)
+
+    public void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg,
+        RecognitionException e)
     {
         var mess = InterpreterExceptionsFactory.GetLineWithErrorPosition(line, charPositionInLine, _input);
         
