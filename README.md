@@ -6,6 +6,9 @@
 
 `*.moist` - файли мовою Moist
 
+## Приклади
+
+
 ## Основні правила
 
 ### Змінні та константи
@@ -24,12 +27,12 @@ x = 20;
 ### Основні типи
 
 ```moist
-x := 42;            # Integer
-y := 3.14;          # Double
-z := "Hello";       # String
-b := true;          # Boolean
-a := [1, 2, 3];     # Array
-u := unit;          # Unit
+x := 42;                # Integer
+y := 3.14;              # Double
+z := "Hello";           # String
+a := true;              # Boolean
+b := [1, "two", 3.14];  # Array
+u := unit;              # Unit
 ```
 
 ### Індексація
@@ -73,12 +76,12 @@ for (i := 0; i < 5; i = i + 1) {
 
 ```moist
 arr := [1, 2, 3, 4, 5];
-forEach (item in arr) {
+for (item in arr) {
     PrintLine(item);
 }
 
 str := "Hello, world!";
-forEach (c in str) {
+for (c in str) {
     PrintLine(c);
 }
 ```
@@ -102,7 +105,8 @@ func factorial(n)
     }
 }
 
-func printName(name) {  # return type is Unit
+# return type is Unit
+func printName(name) {
     PrintLine(name);
 }
 ```
@@ -116,6 +120,8 @@ result := add(3, 4);
 ### Оператори порівняння
 
 ```moist
+# > < >= <= == !=
+
 if (x > y) {
     PrintLine("x більше y");
 }
@@ -124,6 +130,16 @@ if (a == b) {
     PrintLine("a дорівнює b");
 }
 ```
+
+### Оператори
+
+```moist
+# Оператори над числами
++ - * / %
+
+# Оператори над строками
++
+``````
 
 ## Основні типи
 

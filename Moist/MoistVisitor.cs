@@ -509,10 +509,10 @@ public class MoistVisitor : MoistBaseVisitor<object>
     public override object VisitForEachStatement(MoistParser.ForEachStatementContext context)
     {
         var variableName = context.forEachVariable().GetText();
+        Variable newVariable = default!;
         if (!TryGetVariable(variableName, out _))
         {
-            throw _parserExceptionsFactory.VariableNotDeclared(variableName, context.forEachVariable().Start.Line,
-                context.forEachVariable().Start.Column);
+            newVariable = new Variable(variableName, End, BasicType.Unknown, false, GetCurrentFunctionName());
         }
 
         var collection = context.forEachCollection();
@@ -532,7 +532,13 @@ public class MoistVisitor : MoistBaseVisitor<object>
             var array = (List<object>) collectionValue;
             foreach (var element in array)
             {
-                TryGetVariable(variableName, out var variable);
+                if (!TryGetVariable(variableName, out var variable))
+                {
+                    newVariable.Value = element;
+                    newVariable.BasicType = GetBasicType(element);
+                    _variables.Add(newVariable);
+                    variable = newVariable;
+                }
                 variable.Value = element;
                 foreach (var statement in statements)
                 {
@@ -545,8 +551,14 @@ public class MoistVisitor : MoistBaseVisitor<object>
             var array = (string) collectionValue;
             foreach (var element in array)
             {
-                TryGetVariable(variableName, out var variable);
-                variable.Value = element.ToString();
+                if (!TryGetVariable(variableName, out var variable))
+                {
+                    newVariable.Value = element;
+                    newVariable.BasicType = BasicType.String;
+                    _variables.Add(newVariable);
+                    variable = newVariable;
+                }
+                variable.Value = element;
                 foreach (var statement in statements)
                 {
                     VisitStatement(statement);

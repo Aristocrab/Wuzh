@@ -6,8 +6,15 @@ if(args.Length == 0)
 {
     input = 
     """
-    a := "Usage: moist.exe <file>"
-    Print(a);
+    arr := [1, 2, 3, 4, 5];
+    for (item in arr) {
+        PrintLine(item);
+    }
+
+    str := "Hello, world!";
+    for (c in str) {
+        PrintLine(c);
+    }
     """;
 }
 else

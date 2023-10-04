@@ -22,7 +22,7 @@ public class Variable
         }
     }
 
-    public BasicType BasicType { get; }
+    public BasicType BasicType { get; set; }
     
     public bool IsConstant { get; }
     
