@@ -16,13 +16,13 @@ public class MoistVisitor : MoistBaseVisitor<object>
     private readonly Stack<string> _visitedFunctions = new();
     private int _recursionDepth;
         
-    private readonly ParserExceptionsFactory _parserExceptionsFactory;
+    private readonly InterpreterExceptionsFactory _interpreterExceptionsFactory;
     private object _functionReturnValue = End;
     private BasicType _functionReturnType = BasicType.Unknown;
 
     public MoistVisitor(string input)
     {
-        _parserExceptionsFactory = new ParserExceptionsFactory(input);
+        _interpreterExceptionsFactory = new InterpreterExceptionsFactory(input);
         _visitedFunctions.Push("$global");
     }
 
@@ -36,7 +36,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             var line = context.Start.Line;
             var column = context.Start.Column;
                 
-            throw _parserExceptionsFactory.VariableAlreadyDeclared(variableName, line, column);
+            throw _interpreterExceptionsFactory.VariableAlreadyDeclared(variableName, line, column);
         }
             
         var value = VisitExpression(context.expression());
@@ -57,14 +57,14 @@ public class MoistVisitor : MoistBaseVisitor<object>
         {
             if (variable.IsConstant)
             {
-                throw _parserExceptionsFactory.CanNotAssignToConstant(variableName, 
+                throw _interpreterExceptionsFactory.CanNotAssignToConstant(variableName, 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
                 
             if (variable.BasicType != GetBasicType(value))
             {
-                throw _parserExceptionsFactory.ValueOfTypeCanNotBeAssigned(variable.BasicType, 
+                throw _interpreterExceptionsFactory.ValueOfTypeCanNotBeAssigned(variable.BasicType, 
                     GetBasicType(value), 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
@@ -74,7 +74,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         }
         else
         {
-            throw _parserExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
 
         return End;
@@ -90,7 +90,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         {
             if (variable.IsConstant)
             {
-                throw _parserExceptionsFactory.CanNotAssignToConstant(variableName, 
+                throw _interpreterExceptionsFactory.CanNotAssignToConstant(variableName, 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
@@ -114,7 +114,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         }
         else
         {
-            throw _parserExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
 
         return End;
@@ -132,7 +132,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             }
             if (left is not bool && context.ExclamationMark() is not null)
             {
-                throw _parserExceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
+                throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
                     context.multiplyExpression(0).Start.Line, 
                     context.multiplyExpression(0).Start.Column);
             }
@@ -171,7 +171,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             
         if (result is not bool && context.ExclamationMark() is not null)
         {
-            throw _parserExceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
+            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
                 context.multiplyExpression(0).Start.Line, 
                 context.multiplyExpression(0).Start.Column);
         }
@@ -230,7 +230,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             
         if (leftType != rightType)
         {
-            throw _parserExceptionsFactory.DifferentTypesComparison(leftType.ToString(), rightType.ToString(), 
+            throw _interpreterExceptionsFactory.DifferentTypesComparison(leftType.ToString(), rightType.ToString(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
@@ -246,7 +246,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 "<=" => (int)left <= (int)right,
                 "==" => left.Equals(right),
                 "!=" => !left.Equals(right),
-                _ => throw _parserExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -262,7 +262,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 "<=" => (decimal)left <= (decimal)right,
                 "==" => left.Equals(right),
                 "!=" => !left.Equals(right),
-                _ => throw _parserExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -274,7 +274,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             {
                 "==" => left.Equals(right),
                 "!=" => !left.Equals(right),
-                _ => throw _parserExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -288,7 +288,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 "!=" => !left.Equals(right),
                 "&&" => (bool)left && (bool)right,
                 "||" => (bool)left || (bool)right,
-                _ => throw _parserExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -377,7 +377,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
             Console.WriteLine("zzz");
 
-            throw _parserExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
 
         return End;
@@ -389,7 +389,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
         if (condition is not bool boolCondition)
         {
-            throw _parserExceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
+            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
                 context.expression().Start.Line, 
                 context.expression().Start.Column);
         }
@@ -421,7 +421,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
         if (condition is not bool boolCondition)
         {
-            throw _parserExceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
+            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
                 context.expression().Start.Line, 
                 context.expression().Start.Column);
         }
@@ -444,7 +444,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         var declaration = context.declaration();
         if (declaration is null)
         {
-            throw _parserExceptionsFactory.ForLoopVariableNotDeclared(context.GetText(), 
+            throw _interpreterExceptionsFactory.ForLoopVariableNotDeclared(context.GetText(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
@@ -453,7 +453,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         // var variableName = declaration.Identificator().GetText();
         // if (_variables.TryGetValue(variableName, out var variable) && variable.IsConstant)
         // {
-        //     throw _parserExceptionsFactory.LoopVariableCanNotBeConstant(variableName, 
+        //     throw _interpreterExceptionsFactory.LoopVariableCanNotBeConstant(variableName, 
         //         declaration.Start.Line, 
         //         declaration.Start.Column);
         // }
@@ -462,7 +462,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             
         if (expression is null)
         {
-            throw _parserExceptionsFactory.ForLoopStepNotDeclared(context.GetText(), 
+            throw _interpreterExceptionsFactory.ForLoopStepNotDeclared(context.GetText(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
@@ -471,14 +471,14 @@ public class MoistVisitor : MoistBaseVisitor<object>
             
         if (condition is null)
         {
-            throw _parserExceptionsFactory.ForLoopConditionNotDeclared(context.GetText(), 
+            throw _interpreterExceptionsFactory.ForLoopConditionNotDeclared(context.GetText(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
 
         if (condition is not bool boolCondition)
         {
-            throw _parserExceptionsFactory.ExpressionIsNotBoolean(expression.GetText(), 
+            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(expression.GetText(), 
                 expression.Start.Line, 
                 expression.Start.Column);
         }
@@ -494,7 +494,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 
             if (step is null)
             {
-                throw _parserExceptionsFactory.ForLoopStepNotDeclared(context.expression().GetText(), 
+                throw _interpreterExceptionsFactory.ForLoopStepNotDeclared(context.expression().GetText(), 
                     context.Start.Line, 
                     context.Start.Column);
             }
@@ -521,7 +521,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
         if (collectionType is not (BasicType.Array or BasicType.String))
         {
-            throw _parserExceptionsFactory.UnsupportedTypeAsCollection(collectionType.ToString(), 
+            throw _interpreterExceptionsFactory.UnsupportedTypeAsCollection(collectionType.ToString(), 
                 collection.expression().Start.Line, 
                 collection.expression().Start.Column);
         }
@@ -636,7 +636,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         {
             if (TryGetVariable(parameter, out _))
             {
-                throw _parserExceptionsFactory.GlobalVariableWithSameNameAlreadyDeclared(parameter, 
+                throw _interpreterExceptionsFactory.GlobalVariableWithSameNameAlreadyDeclared(parameter, 
                     context.Start.Line, 
                     context.Start.Column + "func ".Length + functionName.Length + 1 + i);
             }
@@ -648,7 +648,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         var function = new Function(functionName, parameters, context.statement().ToList());
         if (_functions.Any(x => x.Name == functionName && x.Arguments.Count == parameters.Count))
         {
-            throw _parserExceptionsFactory.FunctionAlreadyDeclared(functionName, 
+            throw _interpreterExceptionsFactory.FunctionAlreadyDeclared(functionName, 
                 context.Start.Line, context.Start.Column);
         }
 
@@ -670,7 +670,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
             if (variable.BasicType != BasicType.Integer)
             {
-                throw _parserExceptionsFactory.ArrayIndexerMustBeInteger(variable.BasicType, 
+                throw _interpreterExceptionsFactory.ArrayIndexerMustBeInteger(variable.BasicType, 
                     index.Start.Line, 
                     index.Start.Column);
             }
@@ -684,7 +684,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
             if (valueType != BasicType.Integer)
             {
-                throw _parserExceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
+                throw _interpreterExceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
                     index.Start.Line, 
                     index.Start.Column);
             }
@@ -827,7 +827,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             
         if (method == null)
         {
-            throw _parserExceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line,
+            throw _interpreterExceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line,
                 column);
         }
 
@@ -837,7 +837,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         }
         catch
         {
-            throw _parserExceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line, column);
+            throw _interpreterExceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line, column);
         }
     }
 
@@ -854,7 +854,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                     "/" => leftInt / rightInt,
                     "%" => leftInt % rightInt,
                     "//" => leftInt / rightInt,
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -868,7 +868,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                     "/" => leftD / rightD,
                     "%" => leftD % rightD,
                     "//" => (int)(leftD / rightD),
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -882,7 +882,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                     "/" => dec / integer,
                     "%" => dec % integer,
                     "//" => (int)(dec / integer),
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -896,7 +896,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                     "/" => integer2 / dec2,
                     "%" => integer2 % dec2,
                     "//" => (int)(integer2 / dec2),
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -905,7 +905,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 return op switch
                 {
                     "+" => leftStr + rightStr,
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -915,7 +915,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 {
                     "+" => str + @int,
                     "*" => string.Concat(Enumerable.Repeat(str, @int)),
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -925,20 +925,20 @@ public class MoistVisitor : MoistBaseVisitor<object>
                 {
                     "+" => int1 + str1,
                     "*" => string.Concat(Enumerable.Repeat(str1, int1)),
-                    _ => throw _parserExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
         }
         catch
         {
-            throw _parserExceptionsFactory.OperatorNotSupportedForTypes(op, 
+            throw _interpreterExceptionsFactory.OperatorNotSupportedForTypes(op, 
                 GetBasicType(left), 
                 GetBasicType(right), 
                 line, 
                 column);
         }
 
-        throw _parserExceptionsFactory.OperatorNotSupportedForTypes(op, 
+        throw _interpreterExceptionsFactory.OperatorNotSupportedForTypes(op, 
             GetBasicType(left), 
             GetBasicType(right), 
             line, 

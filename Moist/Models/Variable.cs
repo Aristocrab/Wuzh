@@ -15,7 +15,7 @@ public class Variable
         {
             if (IsConstant)
             {
-                throw new ParserException($"Cannot assign value to constant variable '{Name}'");
+                throw new InterpreterException($"Cannot assign value to constant variable '{Name}'");
             }
             
             _value = value;

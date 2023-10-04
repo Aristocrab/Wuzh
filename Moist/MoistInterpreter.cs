@@ -8,24 +8,40 @@ public class MoistInterpreter
 {
     private readonly MoistVisitor _visitor;
     private readonly MoistParser.ProgramContext _programContext;
+    private bool _error = false;
 
     public MoistInterpreter(string input)
     {
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
         
-        var inputStream = new AntlrInputStream(input);
-        var moistLexer = new MoistLexer(inputStream);
+        try
+        {
+            var inputStream = new AntlrInputStream(input);
 
-        var commonTokenStream = new CommonTokenStream(moistLexer);
+            var lexer = new MoistLexer(inputStream);
+            lexer.RemoveErrorListeners();
+            lexer.AddErrorListener(new LexerErrorListener(input));
 
-        var moistParser = new MoistParser(commonTokenStream);
-        _programContext = moistParser.program();
+            var commonTokenStream = new CommonTokenStream(lexer);
 
-        _visitor = new MoistVisitor(input);
+            var parser = new MoistParser(commonTokenStream);
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new ParserErrorListener(input));
+
+            _programContext = parser.program();
+            _visitor = new MoistVisitor(input);
+        }
+        catch (Exception e)
+        {
+            _error = true;
+            Console.WriteLine(e.Message);
+        }
     }
     
     public void Run(bool debug = false)
     {
+        if (_error) return;
+        
         try
         {
             _visitor.VisitProgram(_programContext);
@@ -37,7 +53,7 @@ public class MoistInterpreter
                 _visitor.DumpFunctions();
             }
         }
-        catch (ParserException e)
+        catch (InterpreterException e)
         {
             Console.WriteLine(e.Message);
         }

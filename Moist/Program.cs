@@ -6,15 +6,8 @@ if(args.Length == 0)
 {
     input = 
     """
-    arr := [1, 2, 3, 4, 5];
-    for (item in arr) {
-        PrintLine(item);
-    }
-
-    str := "Hello, world!";
-    for (c in str) {
-        PrintLine(c);
-    }
+    a := "Usage: moist.exe <file>"
+    Print(a);
     """;
 }
 else
@@ -29,7 +22,7 @@ else
     {
         input =
         $"""
-        filename := "{file}"
+        filename := "{file}";
         PrintLine("Error: file '" + filename + "' was not found.");
         """;
     }
