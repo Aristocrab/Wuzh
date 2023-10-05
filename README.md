@@ -2,7 +2,7 @@
 
 ```moist
 func HelloWorld() {
-    PrintLine("Hello, world!);
+    PrintLine("Hello, world!");
 }
 
 HelloWorld();
