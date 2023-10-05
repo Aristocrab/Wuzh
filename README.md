@@ -2,6 +2,25 @@
 
 ## Зміст
 
+- [Файли](#файли)
+- [Приклади](#приклади)
+- [Синтаксис](#синтаксис)
+    -  [Змінні та константи](#змінні-та-константи)
+    -  [Присвоєння](#присвоєння)
+    -  [Базові типи](#базові-типи)
+    -  [Індексація](#індексація)
+    -  [Умовний оператор "if"](#умовний-оператор-if)
+    -  [Цикл "while"](#цикл-while)
+    -  [Цикл "for"](#цикл-for)
+    -  [Цикл "foreach"](#цикл-for-для-колекцій-та-строк)
+    -  [Оголошення функцій](#оголошення-функцій)
+    -  [Виклик функцій](#виклик-функцій)
+    -  [Оператори порівняння](#оператори-порівняння)
+    -  [Операції над числами](#операції)
+
+- [Базові типи](#базові-типи)
+- [Стандартна бібліоткеа](#стандартна-бібліотека)
+
 ## Файли
 
 `moist.exe` - інтерпретатор мови Moist
@@ -10,9 +29,15 @@
 
 ## Приклади
 
-[Examples/](https://github.com/Aristocrab/Moist/tree/main/Examples)
+- [Examples/](https://github.com/Aristocrab/Moist/tree/main/Examples)
+    -  [helloworld.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/helloworld.moist)
+    -  [factorial.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/factorial.moist)
+    -  [brainfuck.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/brainfuck.moist)
+    -  [morse.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/morse.moist)
+    -  [syntaxExample.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/syntaxExample.moist)
 
-## Основні правила
+
+## Синтаксис
 
 ### Змінні та константи
 
@@ -134,13 +159,13 @@ if (a == b) {
 }
 ```
 
-### Оператори
+### Операції
 
 ```moist
-# Оператори над числами
+# Операції над числами
 + - * / %
 
-# Оператори над строками
+# Операції над строками
 +
 ``````
 
@@ -154,72 +179,6 @@ if (a == b) {
 - `String`: Рядок
 - `Boolean`: Логічний тип
 - `Array`: Масив
-
-
-
-## Інтерпретатор Brainfuck
-
-```moist
-func runBrainfuck(code) {
-    memory := Array(3000, 0);
-    pointer := 0;
-    
-    stack := [];
-    
-    char := "";
-    for (i := 0, i < Length(code), i = i + 1) {
-        char = code[i];
-        if (char == "+") {
-            SetValue(memory, pointer, memory[pointer] + 1);
-        } 
-        if (char == "-") {
-            SetValue(memory, pointer, memory[pointer] - 1);
-        }
-        if (char == ".") {
-            Print(Char(memory[pointer]));
-        }
-        if (char == ",") {
-            SetValue(memory, pointer, AsciiCode(ReadLine()));
-        }
-        if (char == "<") {
-            pointer = pointer - 1;
-        }
-        if (char == ">") {
-            pointer = pointer + 1;
-        }
-        if (char == "[") {
-            if (memory[pointer] == 0) {
-                level := 1;
-                while (level > 0) {
-                    i := i + 1;
-                    if (code[i] == "[") {
-                        level = level + 1;
-                    }
-                    if (code[i] == "]") {
-                        level = level - 1;
-                    }
-                }
-            } else {
-                Append(stack, i);
-            }
-        }
-        if (char == "]") {
-            if (memory[pointer] != 0) {
-                i = stack[Length(stack) - 1];
-            } else {
-                Remove(stack, Length(stack) - 1);
-            }
-        }
-    }
-}
-
-runBrainfuck(">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.>>>++++++++[<++++>-]<.>>>++++++++++[<+++++++++>-]<---.<<<<.+++.------.--------.>>+.>++++++++++.");
-```
-
-### Result
-
-`> Hello World!`
-
 
 ## Стандартна бібліотека
 
