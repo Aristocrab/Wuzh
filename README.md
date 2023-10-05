@@ -1,4 +1,12 @@
-# Moist
+# Moist - simple programming language
+
+```moist
+func HelloWorld() {
+    PrintLine("Hello, world!);
+}
+
+HelloWorld();
+```
 
 ## Зміст
 
