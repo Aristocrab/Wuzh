@@ -29,15 +29,21 @@ public class InterpreterExceptionsFactory
         return exception;
     }
     
-    public InterpreterException FunctionAlreadyDeclared(string functionName, int line, int column)
+    public InterpreterException FunctionAlreadyDeclared(string functionName, int argumentsCount, int line, int column)
     {
-        var exception = BuildParserException(line, column, $"Function '{functionName}' already declared");
+        var exception = BuildParserException(line, column, $"Function '{functionName}' with {argumentsCount} argument{(argumentsCount == 1 ? "" : "s")} already declared");
         return exception;
     }
     
     public InterpreterException FunctionNotDeclared(string functionName, int line, int column)
     {
         var exception = BuildParserException(line, column, $"Function '{functionName}' was not found");
+        return exception;
+    }
+    
+    public InterpreterException ReturnOutsideFunction(int line, int column)
+    {
+        var exception = BuildParserException(line, column, "Return outside function");
         return exception;
     }
     
@@ -146,9 +152,9 @@ public class InterpreterExceptionsFactory
         }
         
         var spacesAtStart = 0;
-        for (var i = 0; i < lineText.Length; i++)
+        foreach (var t in lineText)
         {
-            if (lineText[i] == ' ')
+            if (t == ' ')
             {
                 spacesAtStart++;
             }

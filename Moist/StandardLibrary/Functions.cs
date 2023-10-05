@@ -164,4 +164,9 @@ public static class Functions
     {
         return ((char)c).ToString();
     }
+
+    public static int Int(string str)
+    {
+        return int.Parse(str);
+    }
 }

@@ -28,5 +28,13 @@ else
     }
 }
 
+#if DEBUG
+
+input = """
+return 1;
+""";
+
+#endif
+
 var interpreter = new MoistInterpreter(input);
-interpreter.Run(false);
+interpreter.Run();

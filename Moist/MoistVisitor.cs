@@ -13,6 +13,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         
     private readonly List<Variable> _variables = new();
     private readonly List<Function> _functions = new();
+    
     private readonly Stack<string> _visitedFunctions = new();
     private int _recursionDepth;
         
@@ -318,7 +319,9 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
             if (context.basicTypeValue().String() != null)
             {
-                return context.basicTypeValue().String().GetText().Trim('"');
+                return context.basicTypeValue().String()
+                    .GetText()[1..^1] // remove quotes
+                    .Replace("\\\"","\""); // unescape quotes
             }
 
             if (context.basicTypeValue().Boolean() != null)
@@ -625,7 +628,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         var function = new Function(functionName, parameters, context.statement().ToList());
         if (_functions.Any(x => x.Name == functionName && x.Arguments.Count == parameters.Count))
         {
-            throw _interpreterExceptionsFactory.FunctionAlreadyDeclared(functionName, 
+            throw _interpreterExceptionsFactory.FunctionAlreadyDeclared(functionName, parameters.Count,
                 context.Start.Line, context.Start.Column);
         }
 
@@ -698,6 +701,11 @@ public class MoistVisitor : MoistBaseVisitor<object>
 
     public override object VisitReturn(MoistParser.ReturnContext context)
     {
+        if (_visitedFunctions.Peek() == "$global")
+        {
+            throw _interpreterExceptionsFactory.ReturnOutsideFunction(context.Start.Line, context.Start.Column);
+        }
+        
         var value = VisitExpression(context.expression());
             
         _functionReturnValue = value;
@@ -920,88 +928,6 @@ public class MoistVisitor : MoistBaseVisitor<object>
             GetBasicType(right), 
             line, 
             column);
-    }
-
-    public void DumpVariables()
-    {
-        var tableHeader = $"{"Name",-10} | {"Value",-20} | {"Type",-10} | {"IsConstant",-10}";
-
-        Console.WriteLine();
-        Console.Write(new string(' ', (tableHeader.Length - "Debug".Length)/2));
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write("Debug");
-        Console.ResetColor();
-        Console.WriteLine(new string(' ', (tableHeader.Length - "Debug".Length)/2));
-            
-        Console.WriteLine("_variables:");
-            
-        Console.WriteLine(tableHeader);
-        Console.WriteLine(new string('-', tableHeader.Length));
-            
-        foreach (var variable in _variables)
-        {
-            Console.Write($"{variable.Name,-10}");
-            Console.Write(" | ");
-
-            if (variable.BasicType == BasicType.Boolean)
-            {
-                if(variable.Value is bool boolValue && boolValue)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                }
-                Console.Write($"{variable.Value,-20}");
-            }
-            else if (variable.BasicType == BasicType.String)
-            { 
-                var str = $"\"{variable.Value}\"";
-                Console.Write($"{str,-20}");
-            }
-            else if (variable.BasicType == BasicType.Array)
-            { 
-                var str = $"[{string.Join(", ", (List<object>)variable.Value)}]";
-                Console.Write($"{str,-20}");
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write($"{variable.Value,-20}");
-            }
-            Console.ResetColor();
-            Console.Write(" | ");
-                
-            Console.Write($"{variable.BasicType,-10}");
-            Console.Write(" | ");
-
-            if (variable.IsConstant)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-            }
-            Console.Write($"{variable.IsConstant,-10}");
-                
-            Console.ResetColor();
-                
-            Console.WriteLine();
-        }
-            
-        Console.ResetColor();
-    }
-
-    public void DumpFunctions()
-    {
-        Console.WriteLine("Functions:");
-            
-        foreach (var function in _functions)
-        {
-            Console.WriteLine($"{function.Name}({string.Join(", ", function.Arguments)})");
-        }
     }
 
     #endregion

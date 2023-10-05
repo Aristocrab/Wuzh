@@ -15,10 +15,35 @@ public class LexerErrorListener : IAntlrErrorListener<int>
         RecognitionException e)
     {
         var mess = InterpreterExceptionsFactory.GetLineWithErrorPosition(line, charPositionInLine, _input);
+        mess += $"({line}:{charPositionInLine}) Error: ";
         
-        var token = msg.Replace("token recognition error at: ", "");
-        mess += $"({line}:{charPositionInLine}) Error: token {token} was not recognized.";
+        var token = msg
+            .Replace("token recognition error at: ", "")
+            .Replace("'", "")
+            .Replace(";", "");
         
-        throw new InterpreterException(mess);
+        if (TryRecognizeToken(token, out var message))
+        {
+            mess += message;
+        }
+        else
+        {
+            mess += $"token '{token}' was not recognized";
+        }
+        
+        throw new InterpreterException(mess + ".");
+    }
+
+    private static bool TryRecognizeToken(string token, out string message)
+    {
+        if (token.StartsWith("\"") && token.Count(x => x == '"') == 1)
+        {
+            // stiring with no second " 
+            message = "string literal was not closed. Expected '\"' at the end of the string";
+            return true;
+        }
+
+        message = "";
+        return false;
     }
 }

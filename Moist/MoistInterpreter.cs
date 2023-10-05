@@ -6,12 +6,14 @@ namespace Moist;
 
 public class MoistInterpreter
 {
+    private readonly bool _debug;
     private readonly MoistVisitor _visitor = null!;
     private readonly MoistParser.ProgramContext _programContext = null!;
     private readonly bool _error;
 
-    public MoistInterpreter(string input)
+    public MoistInterpreter(string input, bool debug = false)
     {
+        _debug = debug;
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
         
         try
@@ -35,27 +37,24 @@ public class MoistInterpreter
         {
             _error = true;
             Console.WriteLine(e.Message);
+
+            if (_debug) throw;
         }
     }
     
-    public void Run(bool debug = false)
+    public void Run()
     {
         if (_error) return;
         
         try
         {
             _visitor.VisitProgram(_programContext);
-
-            if (debug)
-            {
-                _visitor.DumpVariables();
-                Console.WriteLine();
-                _visitor.DumpFunctions();
-            }
         }
         catch (InterpreterException e)
         {
             Console.WriteLine(e.Message);
+
+            if (_debug) throw;
         }
     }
 }
