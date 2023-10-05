@@ -1,0 +1,37 @@
+PrintLine("Hello, world!");
+
+a := "Hello";
+PrintLine(a + "!");
+
+if(false) {
+    PrintLine(1);
+}
+else {
+    PrintLine(2);
+}
+
+b := 5;
+while(b > 0) {
+    PrintLine(b);
+    b = b - 1;
+}
+
+for(c := 0, c <= 10, c = c + 1) {
+    PrintLine(c * c);
+}
+
+for(z in [1, 2, 3]) {
+    PrintLine(z);
+}
+
+func PrintName(name) {
+    PrintLine(name);
+}
+
+func PrintName(name) {
+    PrintLine(name);
+}
+
+PrintName("Bob");
+
+PrintLine(TypeOf(a));
