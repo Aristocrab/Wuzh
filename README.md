@@ -335,7 +335,7 @@ func Char(asciiCode)
 ### Функція `Int`
 
 ```wuzh
-\func Int(str)
+func Int(str)
 ```
 
 Ця функція конвертує рядок `str` в ціле число.
