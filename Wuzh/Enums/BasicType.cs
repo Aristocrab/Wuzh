@@ -1,4 +1,4 @@
-﻿namespace Moist.Enums;
+﻿namespace Wuzh.Enums;
 
 public enum BasicType
 {

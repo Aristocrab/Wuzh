@@ -1,4 +1,4 @@
-﻿namespace Moist.Models;
+﻿namespace Wuzh.Models;
 
 public sealed class Unit
 {

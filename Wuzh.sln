@@ -1,7 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moist", "Moist\Moist.csproj", "{31857D87-CD54-4DA2-BAF0-9D23D228A7C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wuzh", "Wuzh\Wuzh.csproj", "{31857D87-CD54-4DA2-BAF0-9D23D228A7C6}"
 EndProject
+<<<<<<< Updated upstream:Moist.sln
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wuzh.Tests", "Wuzh.Tests\Wuzh.Tests.csproj", "{FF0D1B4D-3644-449E-A987-929867D98D7D}"
+EndProject
+>>>>>>> Stashed changes:Wuzh.sln
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

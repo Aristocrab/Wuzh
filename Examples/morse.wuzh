@@ -1,3 +1,47 @@
+<<<<<<< Updated upstream:Examples/morse.moist
+=======
+# Define a dictionary to map Morse code to letters and numbers
+morseToChar := {
+    ".-" : "A",
+    "-..." : "B",
+    "-.-." : "C",
+    "-.." : "D",
+    "." : "E",
+    "..-." : "F",
+    "--." : "G",
+    "...." : "H",
+    ".." : "I",
+    ".---" : "J",
+    "-.-" : "K",
+    ".-.." : "L",
+    "--" : "M",
+    "-." : "N",
+    "---" : "O",
+    ".--." : "P",
+    "--.-" : "Q",
+    ".-." : "R",
+    "..." : "S",
+    "-" : "T",
+    "..-" : "U",
+    "...-" : "V",
+    ".--" : "W",
+    "-..-" : "X",
+    "-.--" : "Y",
+    "--.." : "Z",
+    "-----" : "0",
+    ".----" : "1",
+    "..---" : "2",
+    "...--" : "3",
+    "....-" : "4",
+    "....." : "5",
+    "-...." : "6",
+    "--..." : "7",
+    "---.." : "8",
+    "----." : "9"
+};
+
+# Function to split a string based on a delimiter
+>>>>>>> Stashed changes:Examples/morse.wuzh
 func Split(input, delimiter) {
    parts := [];
    currentPart := "";

@@ -1,6 +1,12 @@
 ﻿using Antlr4.Runtime;
+<<<<<<<< Updated upstream:Wuzh/Exceptions/LexerErrorListener.cs
 
 namespace Moist.Exceptions;
+========
+using Wuzh.Exceptions;
+
+namespace Wuzh.ErrorListeners;
+>>>>>>>> Stashed changes:Wuzh/ErrorListeners/LexerErrorListener.cs
 
 public class LexerErrorListener : IAntlrErrorListener<int>
 {

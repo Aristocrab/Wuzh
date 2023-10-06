@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="Moist.g4">
+      <Content Include="Wuzh.g4">
       </Content>
     </ItemGroup>
 
@@ -18,6 +18,14 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+      <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
+
     </ItemGroup>
 
+<<<<<<< Updated upstream:Moist/Moist.csproj
+=======
+
+
+
+>>>>>>> Stashed changes:Wuzh/Wuzh.csproj
 </Project>

@@ -1,13 +1,22 @@
 ﻿using System.Globalization;
 using System.Reflection;
+<<<<<<< Updated upstream:Moist/MoistVisitor.cs
 using Moist.Enums;
 using Moist.Exceptions;
 using Moist.Models;
 using Moist.StandardLibrary;
+=======
+using Antlr4.Runtime;
+using Wuzh.Enums;
+using Wuzh.ErrorListeners;
+using Wuzh.Exceptions;
+using Wuzh.Models;
+using Wuzh.StandardLibrary;
+>>>>>>> Stashed changes:Wuzh/WuzhVisitor.cs
 
-namespace Moist;
+namespace Wuzh;
 
-public class MoistVisitor : MoistBaseVisitor<object>
+public class WuzhVisitor : WuzhBaseVisitor<object>
 {
     private static readonly object End = new();
         
@@ -21,13 +30,58 @@ public class MoistVisitor : MoistBaseVisitor<object>
     private object _functionReturnValue = End;
     private BasicType _functionReturnType = BasicType.Unknown;
 
+<<<<<<< Updated upstream:Moist/MoistVisitor.cs
     public MoistVisitor(string input)
     {
         _interpreterExceptionsFactory = new InterpreterExceptionsFactory(input);
         _visitedFunctions.Push("$global");
+=======
+    public WuzhVisitor(string input, string filename)
+    {
+        _input = input;
+        _exceptionsFactory = new ExceptionsFactory(input, filename);
+        _mainFile = filename;
     }
 
-    public override object VisitDeclaration(MoistParser.DeclarationContext context)
+    public override object VisitImportStatement(WuzhParser.ImportStatementContext context)
+    {
+        var importFilePath = context.String().GetText().Replace("\"", "").Trim();
+        if (!File.Exists(importFilePath))
+        {
+            throw _exceptionsFactory.ImportFileNotFound(importFilePath, 
+                context.Start.Line, 
+                context.Start.Column);
+        }
+        
+        var fileText = File.ReadAllText(importFilePath);
+        
+        _exceptionsFactory.FileName = importFilePath;
+        _exceptionsFactory.Input = fileText;
+    
+        var inputStream = new AntlrInputStream(fileText);
+        var lexer = new WuzhLexer(inputStream);
+        lexer.RemoveErrorListeners();
+        lexer.AddErrorListener(new LexerErrorListener(fileText, _exceptionsFactory));
+    
+        var commonTokenStream = new CommonTokenStream(lexer);
+    
+        var parser = new WuzhParser(commonTokenStream);
+        parser.RemoveErrorListeners();
+        parser.AddErrorListener(new ParserErrorListener(fileText, _exceptionsFactory));
+    
+        var importProgram = parser.program();
+    
+        Visit(importProgram);
+        _variables.Clear();
+        
+        _exceptionsFactory.FileName = _mainFile;
+        _exceptionsFactory.Input = _input;
+        
+        return End;
+>>>>>>> Stashed changes:Wuzh/WuzhVisitor.cs
+    }
+
+    public override object VisitDeclaration(WuzhParser.DeclarationContext context)
     {
         var isConstant = context.GetChild(0).GetText() == "const";
         var variableName = context.Identificator().GetText();
@@ -49,7 +103,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitAssignment(MoistParser.AssignmentContext context)
+    public override object VisitAssignment(WuzhParser.AssignmentContext context)
     {
         var variableName = context.Identificator().GetText();
         var value = Visit(context.expression());
@@ -81,7 +135,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
         
-    public override object VisitIndexAssignment(MoistParser.IndexAssignmentContext context)
+    public override object VisitIndexAssignment(WuzhParser.IndexAssignmentContext context)
     {
         var variableName = context.Identificator().GetText();
         var index = Visit(context.index());
@@ -111,6 +165,15 @@ public class MoistVisitor : MoistBaseVisitor<object>
                     
                 variable.Value = arrVariable;
             }
+            else if (variable.BasicType == BasicType.Dictionary)
+            {
+                var arrVariable = (Dictionary<string, object>)variable.Value;
+                var strIndex = (string)index;
+                
+                arrVariable[strIndex] = value;
+                    
+                variable.Value = arrVariable;
+            }
                 
         }
         else
@@ -121,7 +184,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitExpression(MoistParser.ExpressionContext context)
+    public override object VisitExpression(WuzhParser.ExpressionContext context)
     {
         if (context.Plus() != null || context.Minus() != null)
         {
@@ -188,7 +251,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return result;
     }
 
-    public override object VisitMultiplyExpression(MoistParser.MultiplyExpressionContext context)
+    public override object VisitMultiplyExpression(WuzhParser.MultiplyExpressionContext context)
     {
         if (context.Multiply() != null || context.Divide() != null)
         {
@@ -224,7 +287,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return VisitValue(context.value(0));
     }
 
-    private object VisitComparison(MoistParser.ExpressionContext context, object left, object right, string sign)
+    private object VisitComparison(WuzhParser.ExpressionContext context, object left, object right, string sign)
     {
         var leftType = GetBasicType(left);
         var rightType = GetBasicType(right);
@@ -298,7 +361,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
         
-    public override object VisitValue(MoistParser.ValueContext context)
+    public override object VisitValue(WuzhParser.ValueContext context)
     {
         if (context.basicTypeValue() is not null)
         {
@@ -371,7 +434,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitIfStatement(MoistParser.IfStatementContext context)
+    public override object VisitIfStatement(WuzhParser.IfStatementContext context)
     {
         var condition = Visit(context.expression());
 
@@ -403,7 +466,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitWhileStatement(MoistParser.WhileStatementContext context)
+    public override object VisitWhileStatement(WuzhParser.WhileStatementContext context)
     {
         var condition = Visit(context.expression());
 
@@ -427,7 +490,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitForStatement(MoistParser.ForStatementContext context)
+    public override object VisitForStatement(WuzhParser.ForStatementContext context)
     {
         var declaration = context.declaration();
         if (declaration is null)
@@ -486,7 +549,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitForEachStatement(MoistParser.ForEachStatementContext context)
+    public override object VisitForEachStatement(WuzhParser.ForEachStatementContext context)
     {
         var variableName = context.forEachVariable().GetText();
         Variable newVariable = default!;
@@ -549,7 +612,37 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
+<<<<<<< Updated upstream:Moist/MoistVisitor.cs
     public override object VisitFunctionCall(MoistParser.FunctionCallContext context)
+=======
+    private IEnumerable<object> GetCollectionElements(object collection, bool isStringCollection)
+    {
+        if (isStringCollection)
+        {
+            foreach (var str in (string)collection)
+            {
+                yield return str.ToString();
+            }
+        }
+        else
+        {
+            foreach (var elem in (List<object>)collection)
+            {
+                yield return elem;
+            }
+        }
+    }
+
+    private void EnsureCollectionTypeIsSupported(BasicType collectionType, int line, int column)
+    {
+        if (collectionType != BasicType.Array && collectionType != BasicType.String)
+        {
+            throw _exceptionsFactory.UnsupportedTypeAsCollection(collectionType.ToString(), line, column);
+        }
+    }
+
+    public override object VisitFunctionCall(WuzhParser.FunctionCallContext context)
+>>>>>>> Stashed changes:Wuzh/WuzhVisitor.cs
     {
         var functionName = context.Identificator().GetText();
         var argumentsValues = new List<object>();
@@ -604,7 +697,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return function;
     }
 
-    public override object VisitFunctionDeclaration(MoistParser.FunctionDeclarationContext context)
+    public override object VisitFunctionDeclaration(WuzhParser.FunctionDeclarationContext context)
     {
         var functionName = context.Identificator().GetText();
         var parameters = 
@@ -625,7 +718,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
             i++;
         }
 
-        var function = new Function(functionName, parameters, context.statement().ToList());
+        var function = new Function(functionName, _exceptionsFactory.FileName, parameters, context.statement().ToList());
         if (_functions.Any(x => x.Name == functionName && x.Arguments.Count == parameters.Count))
         {
             throw _interpreterExceptionsFactory.FunctionAlreadyDeclared(functionName, parameters.Count,
@@ -637,7 +730,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitArrayIndexing(MoistParser.ArrayIndexingContext context)
+    public override object VisitArrayIndexing(WuzhParser.ArrayIndexingContext context)
     {
         var indexValue = 0;
             
@@ -699,7 +792,7 @@ public class MoistVisitor : MoistBaseVisitor<object>
         return End;
     }
 
-    public override object VisitReturn(MoistParser.ReturnContext context)
+    public override object VisitReturn(WuzhParser.ReturnContext context)
     {
         if (_visitedFunctions.Peek() == "$global")
         {

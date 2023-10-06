@@ -1,4 +1,4 @@
-﻿using Moist;
+﻿using Wuzh;
 
 string input;
 
@@ -6,7 +6,7 @@ if(args.Length == 0)
 {
     input = 
     """
-    a := "Usage: moist.exe <file>";
+    a := "Usage: wuzh.exe <file>";
     Print(a);
     """;
 }
@@ -28,5 +28,29 @@ else
     }
 }
 
+<<<<<<< Updated upstream:Moist/Program.cs
 var interpreter = new MoistInterpreter(input);
+=======
+#if DEBUG
+
+input = """
+
+dict := {
+    "a": 1,
+    "b": 2,
+    "c": 3,
+    "d": 4,
+};
+
+dict["a"] = 5;
+dict["e"] = 6;
+
+PrintLine(dict);
+
+""";
+
+#endif
+
+var interpreter = new WuzhInterpreter(input, file);
+>>>>>>> Stashed changes:Wuzh/Program.cs
 interpreter.Run();

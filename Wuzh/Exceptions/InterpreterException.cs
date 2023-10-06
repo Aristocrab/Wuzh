@@ -1,4 +1,4 @@
-﻿namespace Moist.Exceptions;
+﻿namespace Wuzh.Exceptions;
 
 public class InterpreterException : Exception
 {

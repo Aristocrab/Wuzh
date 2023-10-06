@@ -1,6 +1,12 @@
 ﻿using Antlr4.Runtime;
+<<<<<<<< Updated upstream:Wuzh/Exceptions/ParserErrorListener.cs
 
 namespace Moist.Exceptions;
+========
+using Wuzh.Exceptions;
+
+namespace Wuzh.ErrorListeners;
+>>>>>>>> Stashed changes:Wuzh/ErrorListeners/ParserErrorListener.cs
 
 public class ParserErrorListener : IAntlrErrorListener<IToken>
 {

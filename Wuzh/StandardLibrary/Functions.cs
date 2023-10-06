@@ -1,12 +1,17 @@
+<<<<<<< Updated upstream:Moist/StandardLibrary/Functions.cs
 ﻿using System.Text;
 using Moist.Models;
+=======
+﻿using Wuzh.Models;
+>>>>>>> Stashed changes:Wuzh/StandardLibrary/Functions.cs
 
-namespace Moist.StandardLibrary;
+namespace Wuzh.StandardLibrary;
 
 public static class Functions
 {
     public static Unit PrintLine(object value)
     {
+<<<<<<< Updated upstream:Moist/StandardLibrary/Functions.cs
         if (value is List<object> list)
         {
             Console.WriteLine(GetListString(list));
@@ -15,6 +20,9 @@ public static class Functions
         {
             Console.WriteLine(value);
         }
+=======
+        Console.WriteLine(value.ToWuzhString());
+>>>>>>> Stashed changes:Wuzh/StandardLibrary/Functions.cs
         
         return Unit.Value;
     }
@@ -28,6 +36,7 @@ public static class Functions
     
     public static Unit Print(object value)
     {
+<<<<<<< Updated upstream:Moist/StandardLibrary/Functions.cs
         if (value is List<object> list)
         {
             Console.Write(GetListString(list));
@@ -36,6 +45,9 @@ public static class Functions
         {
             Console.Write(value);
         }
+=======
+        Console.Write(value.ToWuzhString());
+>>>>>>> Stashed changes:Wuzh/StandardLibrary/Functions.cs
         
         return Unit.Value;
     }
@@ -73,7 +85,7 @@ public static class Functions
 
     public static string TypeOf(object obj)
     {
-        return MoistVisitor.GetBasicType(obj).ToString();
+        return WuzhVisitor.GetBasicType(obj).ToString();
     }
     
     public static Unit Sleep(int milliseconds)

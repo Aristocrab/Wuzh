@@ -1,7 +1,7 @@
-﻿using Moist.Enums;
-using Moist.Exceptions;
+﻿using Wuzh.Enums;
+using Wuzh.Exceptions;
 
-namespace Moist.Models;
+namespace Wuzh.Models;
 
 public class Variable
 {
