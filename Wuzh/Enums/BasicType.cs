@@ -8,6 +8,7 @@ public enum BasicType
     String,
     Boolean,
     Array,
+    Dictionary,
     
     Unknown
 }

@@ -25,15 +25,18 @@ public class Variable
     public BasicType BasicType { get; set; }
     
     public bool IsConstant { get; }
-    
+    public int FunctionDepth { get; }
+    public int ScopeDepth { get; }
+
     public string Caller { get; }
     
-    public Variable(string name, object value, BasicType basicType, bool isConstant, string caller = "$global")
+    public Variable(string name, object value, BasicType basicType, bool isConstant, int functionDepth, int scopeDepth)
     {
         Name = name;
         _value = value;
         BasicType = basicType;
         IsConstant = isConstant;
-        Caller = caller;
+        FunctionDepth = functionDepth;
+        ScopeDepth = scopeDepth;
     }
 }

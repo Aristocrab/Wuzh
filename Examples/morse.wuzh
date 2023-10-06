@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream:Examples/morse.moist
-=======
 # Define a dictionary to map Morse code to letters and numbers
 morseToChar := {
     ".-" : "A",
@@ -41,7 +39,6 @@ morseToChar := {
 };
 
 # Function to split a string based on a delimiter
->>>>>>> Stashed changes:Examples/morse.wuzh
 func Split(input, delimiter) {
    parts := [];
    currentPart := "";

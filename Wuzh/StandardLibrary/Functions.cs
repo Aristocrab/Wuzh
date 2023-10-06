@@ -1,9 +1,4 @@
-<<<<<<< Updated upstream:Moist/StandardLibrary/Functions.cs
-﻿using System.Text;
-using Moist.Models;
-=======
 ﻿using Wuzh.Models;
->>>>>>> Stashed changes:Wuzh/StandardLibrary/Functions.cs
 
 namespace Wuzh.StandardLibrary;
 
@@ -11,18 +6,7 @@ public static class Functions
 {
     public static Unit PrintLine(object value)
     {
-<<<<<<< Updated upstream:Moist/StandardLibrary/Functions.cs
-        if (value is List<object> list)
-        {
-            Console.WriteLine(GetListString(list));
-        }
-        else
-        {
-            Console.WriteLine(value);
-        }
-=======
         Console.WriteLine(value.ToWuzhString());
->>>>>>> Stashed changes:Wuzh/StandardLibrary/Functions.cs
         
         return Unit.Value;
     }
@@ -36,46 +20,9 @@ public static class Functions
     
     public static Unit Print(object value)
     {
-<<<<<<< Updated upstream:Moist/StandardLibrary/Functions.cs
-        if (value is List<object> list)
-        {
-            Console.Write(GetListString(list));
-        }
-        else
-        {
-            Console.Write(value);
-        }
-=======
         Console.Write(value.ToWuzhString());
->>>>>>> Stashed changes:Wuzh/StandardLibrary/Functions.cs
         
         return Unit.Value;
-    }
-    
-    private static string GetListString(List<object> list)
-    {
-        var sb = new StringBuilder();
-        
-        sb.Append('[');
-
-        foreach (var elem in list)
-        {
-            if (elem is string str)
-            {
-                sb.Append($"\"{str}\"");
-            }
-            else
-            {
-                 sb.Append(elem);
-            }
-            
-            sb.Append(", ");
-        }
-        
-        sb.Remove(sb.Length - 2, 2);
-        sb.Append(']');
-        
-        return sb.ToString();
     }
     
     public static string ReadLine()
@@ -138,7 +85,7 @@ public static class Functions
         return list.Count;
     }
     
-    public static int Length(string str) // todo
+    public static int Length(string str)
     {
         return str.Length;
     }
@@ -180,5 +127,20 @@ public static class Functions
     public static int Int(string str)
     {
         return int.Parse(str);
+    }
+
+    public static bool Contains(Dictionary<string, object> dict, string key)
+    {
+        return dict.ContainsKey(key);
+    }
+    
+    public static List<object> GetKeys(Dictionary<string, object> dict)
+    {
+        return dict.Keys.Select(x => (object)x).ToList();
+    }
+    
+    public static List<object> GetValues(Dictionary<string, object> dict)
+    {
+        return dict.Values.Select(x => x).ToList();
     }
 }

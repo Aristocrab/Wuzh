@@ -2,6 +2,8 @@
 
 string input;
 
+var file = "";
+
 if(args.Length == 0)
 {
     input = 
@@ -12,7 +14,7 @@ if(args.Length == 0)
 }
 else
 {
-    var file = args[0];
+    file = args[0];
 
     if (File.Exists(file))
     {
@@ -28,9 +30,6 @@ else
     }
 }
 
-<<<<<<< Updated upstream:Moist/Program.cs
-var interpreter = new MoistInterpreter(input);
-=======
 #if DEBUG
 
 input = """
@@ -52,5 +51,4 @@ PrintLine(dict);
 #endif
 
 var interpreter = new WuzhInterpreter(input, file);
->>>>>>> Stashed changes:Wuzh/Program.cs
 interpreter.Run();

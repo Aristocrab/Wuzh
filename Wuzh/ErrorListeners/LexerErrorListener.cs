@@ -1,27 +1,23 @@
 ﻿using Antlr4.Runtime;
-<<<<<<<< Updated upstream:Wuzh/Exceptions/LexerErrorListener.cs
-
-namespace Moist.Exceptions;
-========
 using Wuzh.Exceptions;
 
 namespace Wuzh.ErrorListeners;
->>>>>>>> Stashed changes:Wuzh/ErrorListeners/LexerErrorListener.cs
 
 public class LexerErrorListener : IAntlrErrorListener<int>
 {
     private readonly string _input;
+    private readonly ExceptionsFactory _exceptionsFactory;
 
-    public LexerErrorListener(string input)
+    public LexerErrorListener(string input, ExceptionsFactory exceptionsFactory)
     {
         _input = input;
+        _exceptionsFactory = exceptionsFactory;
     }
 
     public void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg,
         RecognitionException e)
     {
-        var mess = InterpreterExceptionsFactory.GetLineWithErrorPosition(line, charPositionInLine, _input);
-        mess += $"({line}:{charPositionInLine}) Error: ";
+        var mess = "";
         
         var token = msg
             .Replace("token recognition error at: ", "")
@@ -37,7 +33,7 @@ public class LexerErrorListener : IAntlrErrorListener<int>
             mess += $"token '{token}' was not recognized";
         }
         
-        throw new InterpreterException(mess + ".");
+        throw _exceptionsFactory.LexerException(line, charPositionInLine, mess);
     }
 
     private static bool TryRecognizeToken(string token, out string message)

@@ -1,18 +1,11 @@
 ﻿using System.Globalization;
 using System.Reflection;
-<<<<<<< Updated upstream:Moist/MoistVisitor.cs
-using Moist.Enums;
-using Moist.Exceptions;
-using Moist.Models;
-using Moist.StandardLibrary;
-=======
 using Antlr4.Runtime;
 using Wuzh.Enums;
 using Wuzh.ErrorListeners;
 using Wuzh.Exceptions;
 using Wuzh.Models;
 using Wuzh.StandardLibrary;
->>>>>>> Stashed changes:Wuzh/WuzhVisitor.cs
 
 namespace Wuzh;
 
@@ -23,19 +16,15 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
     private readonly List<Variable> _variables = new();
     private readonly List<Function> _functions = new();
     
-    private readonly Stack<string> _visitedFunctions = new();
-    private int _recursionDepth;
+    private int _functionDepth;
+    private int _scopeDepth;
+    private readonly string _mainFile;
+    private readonly string _input;
         
-    private readonly InterpreterExceptionsFactory _interpreterExceptionsFactory;
+    private readonly ExceptionsFactory _exceptionsFactory;
     private object _functionReturnValue = End;
     private BasicType _functionReturnType = BasicType.Unknown;
 
-<<<<<<< Updated upstream:Moist/MoistVisitor.cs
-    public MoistVisitor(string input)
-    {
-        _interpreterExceptionsFactory = new InterpreterExceptionsFactory(input);
-        _visitedFunctions.Push("$global");
-=======
     public WuzhVisitor(string input, string filename)
     {
         _input = input;
@@ -78,25 +67,30 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         _exceptionsFactory.Input = _input;
         
         return End;
->>>>>>> Stashed changes:Wuzh/WuzhVisitor.cs
     }
 
     public override object VisitDeclaration(WuzhParser.DeclarationContext context)
     {
         var isConstant = context.GetChild(0).GetText() == "const";
         var variableName = context.Identificator().GetText();
-            
-        if(_variables.Any(x => x.Name == variableName && x.Caller == GetCurrentFunctionName()))
+        
+        if(variableName == "unit")
+        {
+            throw _exceptionsFactory.ReservedWord("unit", context.Start.Line, context.Start.Column);
+        }
+        
+        var existingVariable = GetVariable(variableName);
+        if(existingVariable is not null)
         {
             var line = context.Start.Line;
             var column = context.Start.Column;
                 
-            throw _interpreterExceptionsFactory.VariableAlreadyDeclared(variableName, line, column);
+            throw _exceptionsFactory.VariableAlreadyDeclared(variableName, line, column);
         }
             
         var value = VisitExpression(context.expression());
 
-        var variable = new Variable(variableName, value, GetBasicType(value), isConstant, GetCurrentFunctionName());
+        var variable = new Variable(variableName, value, GetBasicType(value), isConstant, _functionDepth, _scopeDepth);
 
         _variables.Add(variable);
 
@@ -108,18 +102,19 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var variableName = context.Identificator().GetText();
         var value = Visit(context.expression());
 
-        if (TryGetVariable(variableName, out var variable))
+        var variable = GetVariable(variableName);
+        if (variable is not null)
         {
             if (variable.IsConstant)
             {
-                throw _interpreterExceptionsFactory.CanNotAssignToConstant(variableName, 
+                throw _exceptionsFactory.CanNotAssignToConstant(variableName, 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
                 
             if (variable.BasicType != GetBasicType(value))
             {
-                throw _interpreterExceptionsFactory.ValueOfTypeCanNotBeAssigned(variable.BasicType, 
+                throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(variable.BasicType, 
                     GetBasicType(value), 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
@@ -129,7 +124,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
         else
         {
-            throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _exceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
 
         return End;
@@ -141,11 +136,12 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var index = Visit(context.index());
         var value = Visit(context.expression());
 
-        if (TryGetVariable(variableName, out var variable))
+        var variable = GetVariable(variableName);
+        if (variable is not null)
         {
             if (variable.IsConstant)
             {
-                throw _interpreterExceptionsFactory.CanNotAssignToConstant(variableName, 
+                throw _exceptionsFactory.CanNotAssignToConstant(variableName, 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
@@ -153,6 +149,13 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             if (variable.BasicType == BasicType.Array)
             {
                 var arrVariable = (List<object>)variable.Value;
+
+                if (arrVariable.Count <= (int)index)
+                {
+                    throw _exceptionsFactory.IndexOutOfRangeException(context.index().Start.Line, 
+                        context.index().Start.Column);
+                }
+                
                 arrVariable[(int)index] = value;
                     
                 variable.Value = arrVariable;
@@ -160,6 +163,13 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             else if (variable.BasicType == BasicType.String)
             {
                 var arrVariable = (string)variable.Value;
+                
+                if (arrVariable.Length <= (int)index)
+                {
+                    throw _exceptionsFactory.IndexOutOfRangeException(context.index().Start.Line, 
+                        context.index().Start.Column);
+                }
+                
                 arrVariable = arrVariable.Remove((int)index, 1);
                 arrVariable = arrVariable.Insert((int)index, value.ToString()!);
                     
@@ -168,7 +178,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             else if (variable.BasicType == BasicType.Dictionary)
             {
                 var arrVariable = (Dictionary<string, object>)variable.Value;
-                var strIndex = (string)index;
+                var strIndex = ((string)index);
                 
                 arrVariable[strIndex] = value;
                     
@@ -178,7 +188,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
         else
         {
-            throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _exceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
 
         return End;
@@ -196,7 +206,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             }
             if (left is not bool && context.ExclamationMark() is not null)
             {
-                throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
+                throw _exceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
                     context.multiplyExpression(0).Start.Line, 
                     context.multiplyExpression(0).Start.Column);
             }
@@ -235,7 +245,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
         if (result is not bool && context.ExclamationMark() is not null)
         {
-            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
+            throw _exceptionsFactory.ExpressionIsNotBoolean(context.multiplyExpression(0).GetText(), 
                 context.multiplyExpression(0).Start.Line, 
                 context.multiplyExpression(0).Start.Column);
         }
@@ -294,7 +304,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
         if (leftType != rightType)
         {
-            throw _interpreterExceptionsFactory.DifferentTypesComparison(leftType.ToString(), rightType.ToString(), 
+            throw _exceptionsFactory.DifferentTypesComparison(leftType.ToString(), rightType.ToString(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
@@ -310,7 +320,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 "<=" => (int)left <= (int)right,
                 "==" => left.Equals(right),
                 "!=" => !left.Equals(right),
-                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _exceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -326,7 +336,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 "<=" => (decimal)left <= (decimal)right,
                 "==" => left.Equals(right),
                 "!=" => !left.Equals(right),
-                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _exceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -338,7 +348,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             {
                 "==" => left.Equals(right),
                 "!=" => !left.Equals(right),
-                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _exceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -352,7 +362,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 "!=" => !left.Equals(right),
                 "&&" => (bool)left && (bool)right,
                 "||" => (bool)left || (bool)right,
-                _ => throw _interpreterExceptionsFactory.UnknownOperator(sign, 
+                _ => throw _exceptionsFactory.UnknownOperator(sign, 
                     context.comparisonRightSide().comparisonSign().Start.Line, 
                     context.comparisonRightSide().comparisonSign().Start.Column)
             };
@@ -365,6 +375,15 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
     {
         if (context.basicTypeValue() is not null)
         {
+            if(context.Minus() is not null 
+               && context.basicTypeValue().Integer() is null 
+               && context.basicTypeValue().Double() is null)
+            {
+                throw _exceptionsFactory.OperatorNotSupportedForNotIntOrDoubleValues("-", 
+                    context.Start.Line, 
+                    context.Start.Column);
+            }
+            
             if (context.basicTypeValue().Unit() != null)
             {
                 return Unit.Value;
@@ -372,12 +391,17 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 
             if (context.basicTypeValue().Integer() != null)
             {
-                return int.Parse(context.basicTypeValue().Integer().GetText());
+                var minus = context.Minus() != null ? -1 : 1;
+                return minus * 
+                       int.Parse(context.basicTypeValue().Integer().GetText());
             }
                 
             if (context.basicTypeValue().Double() != null)
             {
-                return decimal.Parse(context.basicTypeValue().Double().GetText(), CultureInfo.InvariantCulture);
+                var minus = context.Minus() != null ? -1 : 1;
+                return minus * 
+                       decimal.Parse(context.basicTypeValue().Double().GetText(), 
+                           CultureInfo.InvariantCulture);
             }
 
             if (context.basicTypeValue().String() != null)
@@ -402,33 +426,135 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
                 return array;
             }
+
+            if (context.basicTypeValue().range() != null)
+            {
+                var firstValue = Visit(context.basicTypeValue().range().expression(0));
+                var secondValue = Visit(context.basicTypeValue().range().expression(1));
+
+                if (firstValue is not int firstIntegerValue)
+                {
+                    throw _exceptionsFactory.RangeItemMustBeInteger(
+                        context.basicTypeValue().range().expression(0).Start.Line,
+                        context.basicTypeValue().range().expression(0).Start.Column);
+                }
+
+                if (secondValue is not int secondIntegerValue)
+                {
+                    throw _exceptionsFactory.RangeItemMustBeInteger(
+                        context.basicTypeValue().range().expression(0).Start.Line,
+                        context.basicTypeValue().range().expression(0).Start.Column);
+                }
+
+                if (firstIntegerValue > secondIntegerValue)
+                {
+                    throw _exceptionsFactory.RangeStartMustBeLessThanEnd(
+                        context.basicTypeValue().range().expression(0).Start.Line,
+                        context.basicTypeValue().range().expression(0).Start.Column);
+                }
+
+                var array = new List<object>();
+
+                for (var i = firstIntegerValue; i <= secondIntegerValue; i++)
+                {
+                    array.Add(i);
+                }
+
+                return array;
+            }
+            
+            if (context.basicTypeValue().dictionary() != null)
+            {
+                var array = new Dictionary<string, object>();
+                foreach (var dictionaryElement in context.basicTypeValue().dictionary().dictionaryEntry())
+                {
+                    var key = dictionaryElement.String().GetText()[1..^1];
+                    var value = VisitExpression(dictionaryElement.expression());
+                    array.Add(key, value);
+                }
+
+                return array;
+            }
         }
 
         if (context.arrayIndexing() != null)
         {
+            if(context.Minus() is not null)
+            {
+                throw _exceptionsFactory.IndexOutOfRangeException(
+                    context.basicTypeValue().Start.Line, 
+                    context.basicTypeValue().Start.Column);
+            }
+            
             return VisitArrayIndexing(context.arrayIndexing());
         }
 
         if (context.functionCall() != null)
         {
-            return VisitFunctionCall(context.functionCall());
+            var minus = context.Minus() != null ? -1 : 1;
+            var ret = VisitFunctionCall(context.functionCall());
+
+            if (minus == -1)
+            {
+                if (ret is not int && ret is not decimal)
+                {
+                    throw _exceptionsFactory.OperatorNotSupportedForNotIntOrDoubleValues("-", 
+                        context.functionCall().Start.Line, 
+                        context.functionCall().Start.Column);
+                }
+
+                return minus * (int)ret;
+            }
+            
+            return ret;
         }
 
         if (context.expression() != null)
         {
-            return Visit(context.expression());
+            var minus = context.Minus() != null ? -1 : 1;
+            var ret = Visit(context.expression());
+
+            if (minus == -1)
+            {
+                if (ret is not int && ret is not decimal)
+                {
+                    throw _exceptionsFactory.OperatorNotSupportedForNotIntOrDoubleValues("-", 
+                        context.functionCall().Start.Line, 
+                        context.functionCall().Start.Column);
+                }
+
+                return minus * (int)ret;
+            }
+            
+            return ret;
         }
             
         if (context.Identificator() != null)
         {
             var variableName = context.Identificator().GetText();
                 
-            if (TryGetVariable(variableName, out var variable))
+            var variable = GetVariable(variableName);
+            if (variable is not null)
             {
-                return variable.Value;
+                var minus = context.Minus() != null ? -1 : 1;
+                var ret = variable.Value;
+
+                if (minus == -1)
+                {
+                    if (ret is not int && ret is not decimal)
+                    {
+                        throw _exceptionsFactory.OperatorNotSupportedForNotIntOrDoubleValues("-", 
+                            context.functionCall().Start.Line, 
+                            context.functionCall().Start.Column);
+                    }
+
+                    return minus * (int)ret;
+                }
+                
+                return ret;
             }
 
-            throw _interpreterExceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _exceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
         }
 
         return End;
@@ -436,11 +562,13 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     public override object VisitIfStatement(WuzhParser.IfStatementContext context)
     {
+        _scopeDepth++;
+        
         var condition = Visit(context.expression());
 
         if (condition is not bool boolCondition)
         {
-            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
+            throw _exceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
                 context.expression().Start.Line, 
                 context.expression().Start.Column);
         }
@@ -463,16 +591,20 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             }
         }
 
+        ResetScope();
+
         return End;
     }
 
     public override object VisitWhileStatement(WuzhParser.WhileStatementContext context)
     {
+        _scopeDepth++;
+        
         var condition = Visit(context.expression());
 
         if (condition is not bool boolCondition)
         {
-            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
+            throw _exceptionsFactory.ExpressionIsNotBoolean(context.expression().GetText(), 
                 context.expression().Start.Line, 
                 context.expression().Start.Column);
         }
@@ -486,16 +618,20 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 
             boolCondition = (bool)Visit(context.expression());
         }
+        
+        ResetScope();
 
         return End;
     }
 
     public override object VisitForStatement(WuzhParser.ForStatementContext context)
     {
+        _scopeDepth++;
+        
         var declaration = context.declaration();
         if (declaration is null)
         {
-            throw _interpreterExceptionsFactory.ForLoopVariableNotDeclared(context.GetText(), 
+            throw _exceptionsFactory.ForLoopVariableNotDeclared(context.GetText(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
@@ -505,7 +641,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
         if (expression is null)
         {
-            throw _interpreterExceptionsFactory.ForLoopStepNotDeclared(context.GetText(), 
+            throw _exceptionsFactory.ForLoopStepNotDeclared(context.GetText(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
@@ -514,14 +650,14 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
         if (condition is null)
         {
-            throw _interpreterExceptionsFactory.ForLoopConditionNotDeclared(context.GetText(), 
+            throw _exceptionsFactory.ForLoopConditionNotDeclared(context.GetText(), 
                 context.Start.Line, 
                 context.Start.Column);
         }
 
         if (condition is not bool boolCondition)
         {
-            throw _interpreterExceptionsFactory.ExpressionIsNotBoolean(expression.GetText(), 
+            throw _exceptionsFactory.ExpressionIsNotBoolean(expression.GetText(), 
                 expression.Start.Line, 
                 expression.Start.Column);
         }
@@ -537,7 +673,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 
             if (step is null)
             {
-                throw _interpreterExceptionsFactory.ForLoopStepNotDeclared(context.expression().GetText(), 
+                throw _exceptionsFactory.ForLoopStepNotDeclared(context.expression().GetText(), 
                     context.Start.Line, 
                     context.Start.Column);
             }
@@ -545,76 +681,51 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             VisitAssignment(step);
             boolCondition = (bool)Visit(expression);
         }
+        
+        ResetScope();
 
         return End;
     }
 
     public override object VisitForEachStatement(WuzhParser.ForEachStatementContext context)
     {
-        var variableName = context.forEachVariable().GetText();
-        Variable newVariable = default!;
-        if (!TryGetVariable(variableName, out _))
+        var iterationVariableName = context.forEachVariable().GetText();
+        
+        var variable = GetVariable(iterationVariableName);
+        if (variable is null)
         {
-            newVariable = new Variable(variableName, End, BasicType.Unknown, false, GetCurrentFunctionName());
+            _variables.Add(new Variable(iterationVariableName, End, 
+                BasicType.Unknown, false, _functionDepth, _scopeDepth));
+
+            variable = GetVariable(iterationVariableName)!;
         }
 
         var collection = context.forEachCollection();
         var collectionValue = VisitExpression(collection.expression());
         var collectionType = GetBasicType(collectionValue);
 
-        if (collectionType is not (BasicType.Array or BasicType.String))
-        {
-            throw _interpreterExceptionsFactory.UnsupportedTypeAsCollection(collectionType.ToString(), 
-                collection.expression().Start.Line, 
-                collection.expression().Start.Column);
-        }
+        EnsureCollectionTypeIsSupported(collectionType, collection.expression().Start.Line, collection.expression().Start.Column);
 
         var statements = context.statement();
-        if (collectionType is BasicType.Array)
+        var isStringCollection = collectionType == BasicType.String;
+
+        foreach (var element in GetCollectionElements(collectionValue, isStringCollection))
         {
-            var array = (List<object>) collectionValue;
-            foreach (var element in array)
+            _scopeDepth++;
+            variable.Value = element;
+            variable.BasicType = isStringCollection ? BasicType.String : GetBasicType(element);
+
+            foreach (var statement in statements)
             {
-                if (!TryGetVariable(variableName, out var variable))
-                {
-                    newVariable.Value = element;
-                    newVariable.BasicType = GetBasicType(element);
-                    _variables.Add(newVariable);
-                    variable = newVariable;
-                }
-                variable.Value = element;
-                foreach (var statement in statements)
-                {
-                    VisitStatement(statement);
-                }
+                VisitStatement(statement);
             }
-        } 
-        else
-        {
-            var array = (string) collectionValue;
-            foreach (var element in array)
-            {
-                if (!TryGetVariable(variableName, out var variable))
-                {
-                    newVariable.Value = element;
-                    newVariable.BasicType = BasicType.String;
-                    _variables.Add(newVariable);
-                    variable = newVariable;
-                }
-                variable.Value = element;
-                foreach (var statement in statements)
-                {
-                    VisitStatement(statement);
-                }
-            }
+
+            ResetScope();
         }
 
         return End;
     }
 
-<<<<<<< Updated upstream:Moist/MoistVisitor.cs
-    public override object VisitFunctionCall(MoistParser.FunctionCallContext context)
-=======
     private IEnumerable<object> GetCollectionElements(object collection, bool isStringCollection)
     {
         if (isStringCollection)
@@ -642,7 +753,6 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
     }
 
     public override object VisitFunctionCall(WuzhParser.FunctionCallContext context)
->>>>>>> Stashed changes:Wuzh/WuzhVisitor.cs
     {
         var functionName = context.Identificator().GetText();
         var argumentsValues = new List<object>();
@@ -654,37 +764,35 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             );
         }
 
-        var userFunc = _functions
+        var userFunction = _functions
             .FirstOrDefault(x => x.Name == functionName && x.Arguments.Count == argumentsValues.Count);
             
-        if (userFunc is not null)
+        if (userFunction is not null)
         {
-            _recursionDepth++;
+            _functionDepth++;
                 
-            for (var i = 0; i < userFunc.Arguments.Count; i++)
+            for (var i = 0; i < userFunction.Arguments.Count; i++)
             {
-                var variable = new Variable(userFunc.Arguments[i], argumentsValues[i],
-                    GetBasicType(argumentsValues[i]), false, functionName + _recursionDepth);
+                var argument = new Variable(userFunction.Arguments[i], argumentsValues[i],
+                    GetBasicType(argumentsValues[i]), false, _functionDepth, _scopeDepth);
 
-                _variables.Add(variable);
+                _variables.Add(argument);
             }
-                
-            _visitedFunctions.Push(functionName);
-                
-            foreach (var statement in userFunc.Statements)
+            
+            foreach (var statement in userFunction.Statements)
             {
                 var ret = Visit(statement);
 
                 if (ret != Unit.Value && _functionReturnType != BasicType.Unknown)
                 {
                     var retValue = _functionReturnValue;
-                    ResetScope();
+                    ResetFunctionScope();
                         
                     return retValue;
                 }
             }
 
-            ResetScope();
+            ResetFunctionScope();
 
             return Unit.Value;
         }
@@ -707,9 +815,10 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var i = 0;
         foreach (var parameter in parameters)
         {
-            if (TryGetVariable(parameter, out _))
+            var variable = GetVariable(parameter);
+            if (variable is not null)
             {
-                throw _interpreterExceptionsFactory.GlobalVariableWithSameNameAlreadyDeclared(parameter, 
+                throw _exceptionsFactory.GlobalVariableWithSameNameAlreadyDeclared(parameter, 
                     context.Start.Line, 
                     context.Start.Column + "func ".Length + functionName.Length + 1 + i);
             }
@@ -721,7 +830,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var function = new Function(functionName, _exceptionsFactory.FileName, parameters, context.statement().ToList());
         if (_functions.Any(x => x.Name == functionName && x.Arguments.Count == parameters.Count))
         {
-            throw _interpreterExceptionsFactory.FunctionAlreadyDeclared(functionName, parameters.Count,
+            throw _exceptionsFactory.FunctionAlreadyDeclared(functionName, parameters.Count,
                 context.Start.Line, context.Start.Column);
         }
 
@@ -732,51 +841,106 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     public override object VisitArrayIndexing(WuzhParser.ArrayIndexingContext context)
     {
-        var indexValue = 0;
+        object indexValue = default!;
             
         // Index
         var index = context.index();
         if (index.Identificator() != null)
         {
             var variableName = index.Identificator().GetText();
-            TryGetVariable(variableName, out var variable);
-
-            if (variable.BasicType != BasicType.Integer)
+           
+            var variable = GetVariable(variableName);
+            if (variable is null)
             {
-                throw _interpreterExceptionsFactory.ArrayIndexerMustBeInteger(variable.BasicType, 
+                throw _exceptionsFactory.VariableNotDeclared(variableName, 
                     index.Start.Line, 
                     index.Start.Column);
             }
                 
-            indexValue = (int)variable.Value;
+            indexValue = variable.Value;
         }
         else if (index.expression() != null)
         {
             var value = VisitExpression(index.expression());
-            var valueType = GetBasicType(value);
-
-            if (valueType != BasicType.Integer)
-            {
-                throw _interpreterExceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
-                    index.Start.Line, 
-                    index.Start.Column);
-            }
                 
-            indexValue = (int)value;
+            indexValue = value;
+        }
+        
+        var valueType = GetBasicType(indexValue);
+
+        if (indexValue is int integerIndex && integerIndex < 0)
+        {
+            throw _exceptionsFactory.IndexOutOfRangeException(index.Start.Line, index.Start.Column);
         }
             
         // Array 
         if (context.arrayOrVariable().Identificator() != null)
         {
             var variableName = context.arrayOrVariable().Identificator().GetText();
-            TryGetVariable(variableName, out var variable);
-
+            
+            var variable = GetVariable(variableName);
+            if (variable is null)
+            {
+                throw _exceptionsFactory.VariableNotDeclared(variableName, 
+                    index.Start.Line, 
+                    index.Start.Column);
+            }
+            
             if (variable.BasicType == BasicType.String)
             {
-                return ((string)variable.Value)[indexValue].ToString();
+                if (valueType != BasicType.Integer)
+                {
+                    throw _exceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
+                        index.Start.Line, 
+                        index.Start.Column);
+                }
+            
+                if (((string)variable.Value).Length <= (int)indexValue)
+                {
+                    throw _exceptionsFactory.IndexOutOfRangeException(index.Start.Line, index.Start.Column);
+                }
+                
+                return ((string)variable.Value)[(int)indexValue].ToString();
             }
 
-            return ((List<object>)variable.Value)[indexValue];
+            if (variable.BasicType == BasicType.Array)
+            {
+                if (valueType != BasicType.Integer)
+                {
+                    throw _exceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
+                        index.Start.Line, 
+                        index.Start.Column);
+                }
+                
+                if (((List<object>)variable.Value).Count <= (int)indexValue)
+                {
+                    throw _exceptionsFactory.IndexOutOfRangeException(index.Start.Line, index.Start.Column);
+                }
+                    
+                return ((List<object>)variable.Value)[(int)indexValue];
+            }
+            
+            if (variable.BasicType == BasicType.Dictionary)
+            {
+                if (valueType != BasicType.String)
+                {
+                    throw _exceptionsFactory.DictionaryIndexerMustBeString(valueType, 
+                        index.Start.Line, 
+                        index.Start.Column);
+                }
+                
+                var dict = (Dictionary<string, object>)variable.Value;
+                var key = indexValue.ToString() ?? "";
+
+                if (!dict.ContainsKey(key))
+                {
+                    throw _exceptionsFactory.DictionaryDoesNotContainKey(key, 
+                        index.Start.Line, 
+                        index.Start.Column);
+                }
+                
+                return dict[key];
+            }
         }
         if (context.arrayOrVariable().array() != null)
         {
@@ -786,7 +950,12 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 array.Add(VisitExpression(value));
             }
 
-            return array[indexValue];
+            if (array.Count <= (int)indexValue)
+            {
+                throw _exceptionsFactory.IndexOutOfRangeException(index.Start.Line, index.Start.Column);
+            }
+
+            return array[(int)indexValue];
         }
 
         return End;
@@ -794,9 +963,9 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     public override object VisitReturn(WuzhParser.ReturnContext context)
     {
-        if (_visitedFunctions.Peek() == "$global")
+        if (_functionDepth == 0)
         {
-            throw _interpreterExceptionsFactory.ReturnOutsideFunction(context.Start.Line, context.Start.Column);
+            throw _exceptionsFactory.ReturnOutsideFunction(context.Start.Line, context.Start.Column);
         }
         
         var value = VisitExpression(context.expression());
@@ -809,44 +978,50 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     #region Helpers
         
-    private void ResetScope()
+    private void ResetFunctionScope()
     {
         _functionReturnValue = End;
         _functionReturnType = BasicType.Unknown;
             
         foreach (var variable in 
                  _variables
-                     .Where(x => x.Caller == GetCurrentFunctionName()).ToList())
+                     .Where(x => x.FunctionDepth == _functionDepth).ToList())
         {
             _variables.Remove(variable);
         }
-            
-        _recursionDepth--;
 
-        if (GetCurrentFunctionName() != "$global")
+        if (_functionDepth != 0)
         {
-            _visitedFunctions.Pop();
+            _functionDepth--;
         }
     }
-
-    private string GetCurrentFunctionName()
+    
+    private void ResetScope()
     {
-        return _visitedFunctions.Peek() + _recursionDepth;
-    }
+        foreach (var variable in 
+                 _variables
+                     .Where(x => x.ScopeDepth == _scopeDepth).ToList())
+        {
+            _variables.Remove(variable);
+        }
         
-    private bool TryGetVariable(string name, out Variable variable)
-    {
-        var variableMaybe = _variables
-            .FirstOrDefault(x => x.Name == name && x.Caller == GetCurrentFunctionName());
-            
-        if (variableMaybe is null)
-        {
-            variable = new Variable("", End, BasicType.Unknown, false, "");
-            return false;
-        }
+        _scopeDepth--;
+    }
 
-        variable = variableMaybe;
-        return true;
+    private Variable? GetVariable(string name)
+    {
+        var inCurrentScope = _variables
+            .FirstOrDefault(x => x.Name == name && x.FunctionDepth == _functionDepth);
+
+        if (inCurrentScope is null)
+        {
+            return _variables
+            .FirstOrDefault(x => x.Name == name && x.FunctionDepth == 0);
+        }
+        else
+        {
+            return inCurrentScope;
+        }
     }
         
     public static BasicType GetBasicType(object value)
@@ -859,6 +1034,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             string => BasicType.String,
             bool => BasicType.Boolean,
             List<object> => BasicType.Array,
+            Dictionary<string, object> => BasicType.Dictionary,
             _ => BasicType.Unknown
         };
     }
@@ -873,6 +1049,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             not null when type == typeof(string) => BasicType.String,
             not null when type == typeof(bool) => BasicType.Boolean,
             not null when type == typeof(List<object>) => BasicType.Array,
+            not null when type == typeof(Dictionary<string, object>) => BasicType.Dictionary,
             _ => BasicType.Unknown
         };
     }
@@ -905,7 +1082,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
         if (method == null)
         {
-            throw _interpreterExceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line,
+            throw _exceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line,
                 column);
         }
 
@@ -915,7 +1092,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
         catch
         {
-            throw _interpreterExceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line, column);
+            throw _exceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line, column);
         }
     }
 
@@ -932,7 +1109,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                     "/" => leftInt / rightInt,
                     "%" => leftInt % rightInt,
                     "//" => leftInt / rightInt,
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -946,7 +1123,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                     "/" => leftD / rightD,
                     "%" => leftD % rightD,
                     "//" => (int)(leftD / rightD),
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -960,7 +1137,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                     "/" => dec / integer,
                     "%" => dec % integer,
                     "//" => (int)(dec / integer),
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -974,7 +1151,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                     "/" => integer2 / dec2,
                     "%" => integer2 % dec2,
                     "//" => (int)(integer2 / dec2),
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -983,7 +1160,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 return op switch
                 {
                     "+" => leftStr + rightStr,
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -993,7 +1170,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 {
                     "+" => str + @int,
                     "*" => string.Concat(Enumerable.Repeat(str, @int)),
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
@@ -1003,20 +1180,24 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 {
                     "+" => int1 + str1,
                     "*" => string.Concat(Enumerable.Repeat(str1, int1)),
-                    _ => throw _interpreterExceptionsFactory.UnknownOperator(op, line, column)
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
         }
-        catch
+        catch(DivideByZeroException)
         {
-            throw _interpreterExceptionsFactory.OperatorNotSupportedForTypes(op, 
+            throw _exceptionsFactory.DivisionByZero(line, column);
+        }
+        catch(Exception)
+        {
+            throw _exceptionsFactory.OperatorNotSupportedForTypes(op, 
                 GetBasicType(left), 
                 GetBasicType(right), 
                 line, 
                 column);
         }
 
-        throw _interpreterExceptionsFactory.OperatorNotSupportedForTypes(op, 
+        throw _exceptionsFactory.OperatorNotSupportedForTypes(op, 
             GetBasicType(left), 
             GetBasicType(right), 
             line, 
