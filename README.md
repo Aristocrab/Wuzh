@@ -1,6 +1,6 @@
-# Moist - simple programming language
+# Wuzh language
 
-```moist
+```wuzh
 func HelloWorld() {
     PrintLine("Hello, world!");
 }
@@ -24,65 +24,81 @@ HelloWorld();
     -  [Оголошення функцій](#оголошення-функцій)
     -  [Виклик функцій](#виклик-функцій)
     -  [Оператори порівняння](#оператори-порівняння)
-    -  [Операції над числами](#операції)
+    -  [Операції](#операції)
 - [Базові типи](#базові-типи)
 - [Стандартна бібліоткеа](#стандартна-бібліотека)
 
 ## Файли
 
-`moist.exe` - інтерпретатор мови Moist
+`wuzh.exe` - інтерпретатор
 
-`*.moist` - файли мовою Moist
+`*.wuzh` - розширення файлів
 
 ## Приклади
 
-- [Examples/](https://github.com/Aristocrab/Moist/tree/main/Examples)
-    -  [helloworld.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/helloworld.moist)
-    -  [factorial.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/factorial.moist)
-    -  [brainfuck.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/brainfuck.moist)
-    -  [morse.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/morse.moist)
-    -  [syntaxExample.moist](https://github.com/Aristocrab/Moist/blob/main/Examples/syntaxExample.moist)
+- [Examples/](https://github.com/Aristocrab/wuzh/tree/main/Examples)
+    -  [helloworld.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/helloworld.wuzh)
+    -  [factorial.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/factorial.wuzh)
+    -  [brainfuck.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/brainfuck.wuzh)
+    -  [morse.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/morse.wuzh)
+    -  [syntaxExample.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/syntaxExample.wuzh)
 
 
 ## Синтаксис
 
 ### Змінні та константи
 
-```moist
+```wuzh
 const x := 42;
-y := 10;
+y := 3.14;
 ```
 
 ### Присвоєння
 
-```moist
-x = 20;
+```wuzh
+x = 21 * 2;
 ```
 
 ### Базові типи
 
-```moist
+```wuzh
+u := unit;              # Unit
 x := 42;                # Integer
 y := 3.14;              # Double
 z := "Hello";           # String
 a := true;              # Boolean
 b := [1, "two", 3.14];  # Array
-u := unit;              # Unit
+range := [1..10];       # Array from 1 to 10
+d := {                  # Dictionary
+    "name": "Vlad", 
+    "age": 19
+};
 ```
 
 ### Індексація
 
-```moist
+```wuzh
 arr := [1, 2, 3];
 x := arr[0];        # x = 1
 
 str := "Hello";
-c := str[0];        # c = 'H'
+c := str[0];        # c = "H"
+
+dict := {                  
+    "name": "Vlad", 
+    "age": 19
+};
+d := dict["name"];   # d = "Vlad"
+
+arr[0] = 3;
+str[0] = "B";
+dict["name"] = "Bob";
+dict["height"] = "180cm";
 ```
 
 ### Умовний оператор "if"
 
-```moist
+```wuzh
 if (x > 30) {
     PrintLine("x більше 30");
 } else {
@@ -92,7 +108,7 @@ if (x > 30) {
 
 ### Цикл "while"
 
-```moist
+```wuzh
 while (x > 0) {
     PrintLine(x);
     x = x - 1;
@@ -101,18 +117,23 @@ while (x > 0) {
 
 ### Цикл "for"
 
-```moist
-for (i := 0; i < 5; i = i + 1) {
+```wuzh
+for (i := 0, i < 5, i = i + 1) {
     PrintLine(i);
 }
 ```
 
 ### Цикл "for" для колекцій та строк
 
-```moist
+```wuzh
 arr := [1, 2, 3, 4, 5];
 for (item in arr) {
     PrintLine(item);
+}
+
+# Range from 1 to 10
+for (i in [1..10]) {
+    PrintLine(i);
 }
 
 str := "Hello, world!";
@@ -123,7 +144,7 @@ for (c in str) {
 
 ### Оголошення функцій
 
-```moist
+```wuzh
 func add(a, b) {
     return a + b;
 }
@@ -148,13 +169,13 @@ func printName(name) {
 
 ### Виклик функцій
 
-```moist
+```wuzh
 result := add(3, 4);
 ```
 
 ### Оператори порівняння
 
-```moist
+```wuzh
 # > < >= <= == !=
 
 if (x > y) {
@@ -168,17 +189,20 @@ if (a == b) {
 
 ### Операції
 
-```moist
+```wuzh
 # Операції над числами
-+ - * / %
++ - * / // %
 
 # Операції над строками
-+
++ *
+
+strConcat := "Hello" + " " + "world!"; # strConcat = "Hello world!"
+strRepeat := "Hello" * 3;              # strRepeat = "HelloHelloHello"
 ``````
 
 ## Базові типи
 
-Мова Moist підтримує наступні типи:
+Мова wuzh підтримує наступні типи:
 
 - `Unit`: Пустий тип
 - `Integer`: Ціле число
@@ -186,12 +210,15 @@ if (a == b) {
 - `String`: Рядок
 - `Boolean`: Логічний тип
 - `Array`: Масив
+- `Dictionary`: Словник
 
 ## Стандартна бібліотека
 
+Список функцій стандартної бібліотеки: [StdLib/](https://github.com/Aristocrab/Wuzh/blob/main/Wuzh/StandardLibrary/Functions.cs);
+
 ### Функція `PrintLine`
 
-```moist
+```wuzh
 func PrintLine(value)
 ```
 
@@ -199,7 +226,7 @@ func PrintLine(value)
 
 ### Функція `Print`
 
-```moist
+```wuzh
 func Print(value)
 ```
 
@@ -207,7 +234,7 @@ func Print(value)
 
 ### Функція `ReadLine`
 
-```moist
+```wuzh
 func ReadLine()
 ```
 
@@ -215,7 +242,7 @@ func ReadLine()
 
 ### Функція `Sleep`
 
-```moist
+```wuzh
 func Sleep(milliseconds)
 ```
 
@@ -223,7 +250,7 @@ func Sleep(milliseconds)
 
 ### Функція `String`
 
-```moist
+```wuzh
 func String(obj)
 ```
 
@@ -231,7 +258,7 @@ func String(obj)
 
 ### Функція `TypeOf`
 
-```moist
+```wuzh
 func TypeOf(obj)
 ```
 
@@ -239,7 +266,7 @@ func TypeOf(obj)
 
 ### Функція `Pow`
 
-```moist
+```wuzh
 func Pow(x, y)
 ```
 
@@ -247,7 +274,7 @@ func Pow(x, y)
 
 ### Функція `Append`
 
-```moist
+```wuzh
 func Append(list, value)
 ```
 
@@ -255,7 +282,7 @@ func Append(list, value)
 
 ### Функція `Remove`
 
-```moist
+```wuzh
 func Remove(list, index)
 ```
 
@@ -263,7 +290,7 @@ func Remove(list, index)
 
 ### Функція `Clear`
 
-```moist
+```wuzh
 func Clear(list)
 ```
 
@@ -271,7 +298,7 @@ func Clear(list)
 
 ### Функція `Length`
 
-```moist
+```wuzh
 func Length(list)
 
 func Length(str)
@@ -281,7 +308,7 @@ func Length(str)
 
 ### Функція `Array`
 
-```moist
+```wuzh
 func Array(size)
 
 func Array(size, value)
@@ -291,7 +318,7 @@ func Array(size, value)
 
 ### Функція `AsciiCode`
 
-```moist
+```wuzh
 func AsciiCode(c)
 ```
 
@@ -299,8 +326,40 @@ func AsciiCode(c)
 
 ### Функція `Char`
 
-```moist
+```wuzh
 func Char(asciiCode)
 ```
 
 Ця функція повертає символ з кодом ASCII `asciiCode`.
+
+### Функція `Int`
+
+```wuzh
+\func Int(str)
+```
+
+Ця функція конвертує рядок `str` в ціле число.
+
+### Функція `Contains`
+
+```wuzh
+func Contains(dict, key)
+```
+
+Ця функція повертає `true`, якщо словник `dict` містить ключ `key`, інакше повертає `false`.
+
+### Функція `GetKeys`
+
+```wuzh
+func GetKeys(dict)
+```
+
+Ця функція повертає список ключів словника `dict`.
+
+### Функція `GetValues`
+
+```wuzh
+func GetValues(dict)
+```
+
+Ця функція повертає список значень словника `dict`.
