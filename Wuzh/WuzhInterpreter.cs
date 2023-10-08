@@ -15,25 +15,27 @@ public class WuzhInterpreter
     public WuzhInterpreter(string input, string filename, bool debug = false)
     {
         _debug = debug;
+        
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+        var exceptionsFactory = new ExceptionsFactory(input, filename);
+        var inputStream = new AntlrInputStream(input);
         
         try
         {
-            var inputStream = new AntlrInputStream(input);
-            var exceptionsFactory = new ExceptionsFactory(input, filename);
-
+            // Lexer
             var lexer = new WuzhLexer(inputStream);
             lexer.RemoveErrorListeners();
-            lexer.AddErrorListener(new LexerErrorListener(input, exceptionsFactory));
-
+            lexer.AddErrorListener(new LexerErrorListener(exceptionsFactory));
             var commonTokenStream = new CommonTokenStream(lexer);
             
+            // Parser
             var parser = new WuzhParser(commonTokenStream);
             parser.RemoveErrorListeners();
-            parser.AddErrorListener(new ParserErrorListener(input, exceptionsFactory));
-            
+            parser.AddErrorListener(new ParserErrorListener(exceptionsFactory));
             _programContext = parser.program();
-            _visitor = new WuzhVisitor(input, filename);
+            
+            // Visitor
+            _visitor = new WuzhVisitor(input, exceptionsFactory);
         }
         catch (Exception e)
         {

@@ -22,14 +22,15 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
     private readonly string _input;
         
     private readonly ExceptionsFactory _exceptionsFactory;
+    private Function? _currentFunction;
     private object _functionReturnValue = End;
     private BasicType _functionReturnType = BasicType.Unknown;
 
-    public WuzhVisitor(string input, string filename)
+    public WuzhVisitor(string input, ExceptionsFactory exceptionsFactory)
     {
         _input = input;
-        _exceptionsFactory = new ExceptionsFactory(input, filename);
-        _mainFile = filename;
+        _exceptionsFactory = exceptionsFactory;
+        _mainFile = exceptionsFactory.FileName;
     }
 
     public override object VisitImportStatement(WuzhParser.ImportStatementContext context)
@@ -50,13 +51,13 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var inputStream = new AntlrInputStream(fileText);
         var lexer = new WuzhLexer(inputStream);
         lexer.RemoveErrorListeners();
-        lexer.AddErrorListener(new LexerErrorListener(fileText, _exceptionsFactory));
+        lexer.AddErrorListener(new LexerErrorListener(_exceptionsFactory));
     
         var commonTokenStream = new CommonTokenStream(lexer);
     
         var parser = new WuzhParser(commonTokenStream);
         parser.RemoveErrorListeners();
-        parser.AddErrorListener(new ParserErrorListener(fileText, _exceptionsFactory));
+        parser.AddErrorListener(new ParserErrorListener(_exceptionsFactory));
     
         var importProgram = parser.program();
     
@@ -74,11 +75,6 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var isConstant = context.GetChild(0).GetText() == "const";
         var variableName = context.Identificator().GetText();
         
-        if(variableName == "unit")
-        {
-            throw _exceptionsFactory.ReservedWord("unit", context.Start.Line, context.Start.Column);
-        }
-        
         var existingVariable = GetVariable(variableName);
         if(existingVariable is not null)
         {
@@ -90,7 +86,34 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
         var value = VisitExpression(context.expression());
 
-        var variable = new Variable(variableName, value, GetBasicType(value), isConstant, _functionDepth, _scopeDepth);
+        var variableType = GetBasicType(value);
+
+        var typeHint = context.Type();
+        if (typeHint is not null)
+        {
+            var hintedType = GetBasicTypeByName(typeHint.GetText());
+
+            if (hintedType == BasicType.String)
+            {
+                value = value.ToWuzhString();
+                variableType = BasicType.String;
+            }
+            
+            if (hintedType == BasicType.Double && variableType == BasicType.Int)
+            {
+                value = (decimal)(int)value;
+                variableType = BasicType.Double;
+            }
+            else if (hintedType != variableType && hintedType != BasicType.Any)
+            {
+                throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(GetBasicTypeByName(typeHint.GetText()), 
+                    variableType, 
+                    context.expression().Start.Line, 
+                    context.expression().Start.Column);
+            }
+        }
+        
+        var variable = new Variable(variableName, value, variableType, isConstant, _functionDepth, _scopeDepth);
 
         _variables.Add(variable);
 
@@ -310,7 +333,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
             
         // int comparison
-        if (leftType == BasicType.Integer)
+        if (leftType == BasicType.Int)
         {
             return sign switch
             {
@@ -354,7 +377,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             };
         }
             
-        if (leftType == BasicType.Boolean)
+        if (leftType == BasicType.Bool)
         {
             return sign switch
             {
@@ -453,12 +476,9 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                         context.basicTypeValue().range().expression(0).Start.Column);
                 }
 
-                var array = new List<object>();
-
-                for (var i = firstIntegerValue; i <= secondIntegerValue; i++)
-                {
-                    array.Add(i);
-                }
+                var array = Enumerable.Range(firstIntegerValue, secondIntegerValue - firstIntegerValue + 1)
+                    .Select(x => (object)x)
+                    .ToList();
 
                 return array;
             }
@@ -765,8 +785,20 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
 
         var userFunction = _functions
-            .FirstOrDefault(x => x.Name == functionName && x.Arguments.Count == argumentsValues.Count);
-            
+            .FirstOrDefault(x => x.Name == functionName 
+                                 && x.Arguments.Count == argumentsValues.Count
+                                 && FunctionsParametersOverlap(x.ArgumentsTypes, 
+                                     argumentsValues.Select(GetBasicType).ToList()));
+
+        if (userFunction is null)
+        {
+            userFunction = _functions.FirstOrDefault(x => x.Name == functionName 
+                                                          && x.Arguments.Count == argumentsValues.Count
+                                                          && x.ArgumentsTypes.All(y => y == BasicType.Any));
+        }
+        
+        _currentFunction = userFunction;
+        
         if (userFunction is not null)
         {
             _functionDepth++;
@@ -775,6 +807,14 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             {
                 var argument = new Variable(userFunction.Arguments[i], argumentsValues[i],
                     GetBasicType(argumentsValues[i]), false, _functionDepth, _scopeDepth);
+
+                if (argument.BasicType != userFunction.ArgumentsTypes[i] && argument.BasicType == BasicType.Any)
+                {
+                    throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(userFunction.ArgumentsTypes[i], 
+                        argument.BasicType, 
+                        context.expression(i).Start.Line, 
+                        context.expression(i).Start.Column);
+                }
 
                 _variables.Add(argument);
             }
@@ -786,6 +826,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 if (ret != Unit.Value && _functionReturnType != BasicType.Unknown)
                 {
                     var retValue = _functionReturnValue;
+                    
                     ResetFunctionScope();
                         
                     return retValue;
@@ -809,11 +850,14 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
     {
         var functionName = context.Identificator().GetText();
         var parameters = 
-            context.functionParameters()?.Identificator().Select(x => x.GetText()).ToList()
-            ?? new List<string>();
+            context.functionParameters()?.parameter().ToList()
+            ?? new List<WuzhParser.ParameterContext>();
 
+        var parametersNames = parameters.Select(x => x.Identificator().GetText()).ToList();
+        var parametersTypes = parameters.Select(x => GetBasicTypeByName(x.Type()?.GetText() ?? "")).ToList();
+        
         var i = 0;
-        foreach (var parameter in parameters)
+        foreach (var parameter in parametersNames)
         {
             var variable = GetVariable(parameter);
             if (variable is not null)
@@ -827,16 +871,41 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             i++;
         }
 
-        var function = new Function(functionName, _exceptionsFactory.FileName, parameters, context.statement().ToList());
-        if (_functions.Any(x => x.Name == functionName && x.Arguments.Count == parameters.Count))
+        var returnType = BasicType.Any;
+        if (context.Type() is not null)
         {
-            throw _exceptionsFactory.FunctionAlreadyDeclared(functionName, parameters.Count,
+            returnType = GetBasicTypeByName(context.Type().GetText());
+        }
+
+        var function = new Function(functionName, 
+            _exceptionsFactory.FileName, 
+            parametersNames, 
+            parametersTypes,
+            context.statement().ToList(),
+            returnType);
+        if (_functions.Any(x => x.Name == functionName && x.Arguments.Count == parametersNames.Count && 
+                                FunctionsParametersOverlap(x.ArgumentsTypes, function.ArgumentsTypes)))
+        {
+            throw _exceptionsFactory.FunctionAlreadyDeclared(functionName, parametersNames.Count,
                 context.Start.Line, context.Start.Column);
         }
 
         _functions.Add(function);
                 
         return End;
+    }
+
+    private static bool FunctionsParametersOverlap(IReadOnlyList<BasicType> first, IReadOnlyList<BasicType> second)
+    {
+        for (var i = 0; i < first.Count; i++)
+        {
+            if (first[i] != BasicType.Any && second[i] != BasicType.Any && first[i] != second[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public override object VisitArrayIndexing(WuzhParser.ArrayIndexingContext context)
@@ -888,7 +957,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             
             if (variable.BasicType == BasicType.String)
             {
-                if (valueType != BasicType.Integer)
+                if (valueType != BasicType.Int)
                 {
                     throw _exceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
                         index.Start.Line, 
@@ -905,7 +974,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
             if (variable.BasicType == BasicType.Array)
             {
-                if (valueType != BasicType.Integer)
+                if (valueType != BasicType.Int)
                 {
                     throw _exceptionsFactory.ArrayIndexerMustBeInteger(valueType, 
                         index.Start.Line, 
@@ -967,12 +1036,20 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         {
             throw _exceptionsFactory.ReturnOutsideFunction(context.Start.Line, context.Start.Column);
         }
-        
+
         var value = VisitExpression(context.expression());
-            
+
         _functionReturnValue = value;
         _functionReturnType = GetBasicType(value);
-            
+
+        if (_currentFunction is not null && _currentFunction.ReturnType != _functionReturnType && _currentFunction.ReturnType != BasicType.Any)
+        {
+            throw _exceptionsFactory.ReturnTypeDoesNotMatchFunctionReturnType(_currentFunction.Name, _currentFunction.ReturnType, 
+                _functionReturnType, 
+                context.Start.Line, 
+                context.Start.Column);
+        }
+
         return value;
     }
 
@@ -1016,7 +1093,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         if (inCurrentScope is null)
         {
             return _variables
-            .FirstOrDefault(x => x.Name == name && x.FunctionDepth == 0);
+                .FirstOrDefault(x => x.Name == name && x.FunctionDepth == 0);
         }
         else
         {
@@ -1029,10 +1106,10 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         return value switch
         {
             Unit => BasicType.Unit,
-            int => BasicType.Integer,
+            int => BasicType.Int,
             decimal => BasicType.Double,
             string => BasicType.String,
-            bool => BasicType.Boolean,
+            bool => BasicType.Bool,
             List<object> => BasicType.Array,
             Dictionary<string, object> => BasicType.Dictionary,
             _ => BasicType.Unknown
@@ -1044,24 +1121,63 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         return type switch
         {
             not null when type == typeof(Unit) => BasicType.Unit,
-            not null when type == typeof(int) => BasicType.Integer,
+            not null when type == typeof(int) => BasicType.Int,
             not null when type == typeof(decimal) => BasicType.Double,
             not null when type == typeof(string) => BasicType.String,
-            not null when type == typeof(bool) => BasicType.Boolean,
+            not null when type == typeof(bool) => BasicType.Bool,
             not null when type == typeof(List<object>) => BasicType.Array,
             not null when type == typeof(Dictionary<string, object>) => BasicType.Dictionary,
+            _ => BasicType.Unknown
+        };
+    }
+    
+    private static BasicType GetBasicTypeByName(string typeName)
+    {
+        return typeName switch
+        {
+            "Unit" => BasicType.Unit,
+            "Int" => BasicType.Int,
+            "Double" => BasicType.Double,
+            "String" => BasicType.String,
+            "Bool" => BasicType.Bool,
+            "Array" => BasicType.Array,
+            "Dict" or "Dictionary" => BasicType.Dictionary,
+            "Any" or "" => BasicType.Any,
             _ => BasicType.Unknown
         };
     }
         
     private object? InvokeStandardLibraryFunction(string functionName, object[] arguments, int line, int column)
     {
-        var standardLibraryType = typeof(Functions);
         var argumentsTypes = arguments.Select(GetBasicType).ToList();
-            
-        var methods = standardLibraryType
-            .GetMethods()
-            .Where(method => method.Name == functionName && method.GetParameters().Length == arguments.Length)
+
+        var allMethods = typeof(ConsoleFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .ToList();
+        
+        allMethods.AddRange(typeof(ArrayFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static));
+        
+        allMethods.AddRange(typeof(DictionaryFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static));
+        
+        allMethods.AddRange(typeof(NumberFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static));
+        
+        allMethods.AddRange(typeof(MainFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static));
+        
+        allMethods.AddRange(typeof(StringFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static));
+        
+        allMethods.AddRange(typeof(TypeConvertFunctions)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static));
+        
+        var methods = allMethods
+            .Where(method => method.Name == functionName 
+                             && (method.GetParameters().Length == arguments.Length 
+                                 || (method.GetParameters().Length == 1 
+                                     && method.GetParameters().First().ParameterType == typeof(object[]))))
             .ToList();
 
         MethodInfo? method;
@@ -1079,11 +1195,17 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 );
         }
             
-            
         if (method == null)
         {
             throw _exceptionsFactory.FunctionNotDeclaredWithArgumentTypes(functionName, argumentsTypes, line,
                 column);
+        }
+        
+        var methodParameters = method.GetParameters();
+        if (methodParameters.Length == 1 && methodParameters.First().ParameterType == typeof(object[]))
+        {
+            var paramsArr = new object[] { arguments };
+            arguments = paramsArr;
         }
 
         try
@@ -1180,6 +1302,51 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 {
                     "+" => int1 + str1,
                     "*" => string.Concat(Enumerable.Repeat(str1, int1)),
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
+                };
+            }
+            
+            if (left is string str3 && right is decimal int3)
+            {
+                return op switch
+                {
+                    "+" => str3 + int3,
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
+                };
+            }
+                
+            if (left is decimal decimal4 && right is string str14)
+            {
+                return op switch
+                {
+                    "+" => decimal4 + str14,
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
+                };
+            }
+            
+            if (left is string boolStr && right is bool bool1)
+            {
+                return op switch
+                {
+                    "+" => boolStr + bool1.ToWuzhString(),
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
+                };
+            }
+            
+            if (left is bool bool2 && right is string strBool)
+            {
+                return op switch
+                {
+                    "+" => bool2.ToWuzhString() + strBool,
+                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
+                };
+            }
+            
+            if (left is List<object> list1 && right is List<object> list2)
+            {
+                return op switch
+                {
+                    "+" => list1.Concat(list2).ToList(),
                     _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
