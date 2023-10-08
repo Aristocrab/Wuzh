@@ -15,13 +15,13 @@ public class ExceptionsFactory
     
     public InterpreterException VariableAlreadyDeclared(string variableName, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Variable '{variableName}' already declared");
+        var exception = BuildInterpreterException(line, column, $"Variable '{variableName}' is already declared");
         return exception;
     }
     
     public InterpreterException VariableNotDeclared(string variableName, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Variable '{variableName}' not declared");
+        var exception = BuildInterpreterException(line, column, $"Variable '{variableName}' is not declared");
         return exception;
     }
     
@@ -39,13 +39,14 @@ public class ExceptionsFactory
     
     public InterpreterException OperatorNotSupportedForNotIntOrDoubleValues(string op, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Operator '{op}' not supported for not int or double values");
+        var exception = BuildInterpreterException(line, column, $"Operator '{op}' not supported for not-integer or non-double values");
         return exception;
     }
     
     public InterpreterException FunctionAlreadyDeclared(string functionName, int argumentsCount, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Function '{functionName}' with {argumentsCount} argument{(argumentsCount == 1 ? "" : "s")} already declared");
+        var exception = BuildInterpreterException(line, column, 
+            $"Function '{functionName}' has already been declared with {argumentsCount} argument{(argumentsCount == 1 ? "" : "s")} of identical types or 'Any'");
         return exception;
     }
 
@@ -58,7 +59,14 @@ public class ExceptionsFactory
     public InterpreterException FunctionNotDeclaredWithArgumentTypes(string functionName, IEnumerable<BasicType> argumentTypes, int line, int column)
     {
         var exception = BuildInterpreterException(line, column, 
-            $"Function '{functionName}' with arguments ('{string.Join(", '", argumentTypes)}') was not found");
+            $"Function '{functionName}' with arguments ('{string.Join("', '", argumentTypes)}') was not found");
+        return exception;
+    }
+    
+    public InterpreterException ReturnTypeDoesNotMatchFunctionReturnType(string functionName, BasicType functionReturnType, BasicType returnType, int line, int column)
+    {
+        var exception = BuildInterpreterException(line, column, 
+            $"Cant return '{returnType}' in function '{functionName}' that returns '{functionReturnType}'");
         return exception;
     }
     
@@ -183,7 +191,7 @@ public class ExceptionsFactory
         message = message.Replace("mismatched input", "before");
         message = message.Replace("expecting {'const', 'func', '}', 'if', 'return', 'while', 'for', Identificator}",
             "expecting '}'");
-        message = message.Replace("expecting {'[', '(', 'unit', Boolean, Integer, Double, String, '-', '!', Identificator}",
+        message = message.Replace("expecting {'[', '(', 'unit', Bool, StringToInt, Double, ToString, '-', '!', Identificator}",
             "expecting value");
         
         var exception = BuildInterpreterException(line, column, message);

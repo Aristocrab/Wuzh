@@ -5,12 +5,10 @@ namespace Wuzh.ErrorListeners;
 
 public class ParserErrorListener : IAntlrErrorListener<IToken>
 {
-    private readonly string _input;
     private readonly ExceptionsFactory _exceptionsFactory;
 
-    public ParserErrorListener(string input, ExceptionsFactory exceptionsFactory)
+    public ParserErrorListener(ExceptionsFactory exceptionsFactory)
     {
-        _input = input;
         _exceptionsFactory = exceptionsFactory;
     }
 
@@ -21,6 +19,24 @@ public class ParserErrorListener : IAntlrErrorListener<IToken>
         {
             msg = msg.Replace("at", "before");
             msg = msg.Replace("before '<EOF>'", "at the end of the file");
+        }
+
+        if (msg.Contains("expecting") && !msg.Contains("extraneous"))
+        {
+            var firstQuotePosition = msg.IndexOf('\'') + 1;
+            var lastQuotePosition = msg.LastIndexOf('\'');
+            var keyWord = msg[firstQuotePosition..lastQuotePosition];
+            msg = $"can't use keyword '{keyWord}' in this context";
+        }
+        if (msg.Contains("expecting") && msg.Contains("extraneous"))
+        {
+            var firstQuotePosition = msg.IndexOf('\'') + 1;
+            var secondQuotePosition = msg.IndexOf('\'', firstQuotePosition);
+            var thirdQuotePosition = msg.IndexOf('\'', secondQuotePosition + 1);
+            var lastQuotePosition = msg.LastIndexOf('\'');
+            var keyWord = msg[firstQuotePosition..secondQuotePosition];
+            var expectedKeyWord = msg[thirdQuotePosition..lastQuotePosition];
+            msg = $"expected {expectedKeyWord}' instead of '{keyWord}'";
         }
         
         throw _exceptionsFactory.ParserException(line, charPositionInLine, msg);

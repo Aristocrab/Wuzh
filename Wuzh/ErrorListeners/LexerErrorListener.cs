@@ -5,12 +5,10 @@ namespace Wuzh.ErrorListeners;
 
 public class LexerErrorListener : IAntlrErrorListener<int>
 {
-    private readonly string _input;
     private readonly ExceptionsFactory _exceptionsFactory;
 
-    public LexerErrorListener(string input, ExceptionsFactory exceptionsFactory)
+    public LexerErrorListener(ExceptionsFactory exceptionsFactory)
     {
-        _input = input;
         _exceptionsFactory = exceptionsFactory;
     }
 
