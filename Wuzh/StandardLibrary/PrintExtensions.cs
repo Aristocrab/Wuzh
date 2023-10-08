@@ -11,6 +11,8 @@ public static class PrintExtensions
         {
             Unit => "unit",
             string s => s,
+            bool b => b.ToString().ToLower(),
+            decimal d => d.ToString("0.0#################"),
             List<object> list => GetListString(list),
             Dictionary<string, object> dict => GetDictionaryString(dict),
             _ => obj.ToString()!
