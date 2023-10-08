@@ -10,7 +10,7 @@ statement: semicolonTerminatedStatement | braceTerminatedStatement;
 semicolonTerminatedStatement: (declaration | assignment | indexAssignment | functionCall | return) Semicolon;
 braceTerminatedStatement: ifStatement | whileStatement | forStatement | forEachStatement | functionDeclaration;
 
-declaration: 'const'? Identificator Declare expression;
+declaration: 'const'? Type? Identificator Declare expression;
 
 assignment: Identificator Assign expression;
 
@@ -33,8 +33,11 @@ basicTypeValue: Unit | Integer | Double | String | Boolean | array | range | dic
 
 functionCall: Identificator LeftParenthesis (expression (Comma expression)*)? RightParenthesis;
 
-functionDeclaration: 'func' Identificator LeftParenthesis (functionParameters)? RightParenthesis LeftCurlyBracket statement* RightCurlyBracket;
-functionParameters: Identificator (Comma Identificator)*;
+functionDeclaration: 'func' Identificator LeftParenthesis (functionParameters)? RightParenthesis 
+    (FunctionTypeSign Type)?
+    LeftCurlyBracket statement* RightCurlyBracket;
+functionParameters: parameter (Comma parameter)*;
+parameter: Type? Identificator;
 
 ifStatement: 'if' LeftParenthesis expression RightParenthesis LeftCurlyBracket statement* RightCurlyBracket elseStatement?;
 elseStatement: 'else' LeftCurlyBracket statement* RightCurlyBracket;
@@ -66,6 +69,8 @@ Integer: '0' | [1-9] [0-9]*;
 Double: [0-9]+ '.' [0-9]+;
 String: '"' (~["\\\r\n] | '\\' .)* '"';
 
+Type: 'Any' | 'Unit' | 'Bool' | 'Int' | 'Double' | 'String' | 'Array' | 'Dict' | 'Dictionary';
+
 // Operators and signs
 Plus: '+';
 Minus: '-';
@@ -94,6 +99,7 @@ Comma: ',';
 Semicolon: ';';
 Colon: ':';
 TwoDots: '..';
+FunctionTypeSign: '->';
 
 Declare: ':=';
 Assign: '=';
