@@ -1286,58 +1286,30 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 };
             }
                 
-            if (left is string str && right is int @int)
+            if (left is string str)
             {
+                if (right is int @int && op == "*")
+                {
+                    return string.Concat(Enumerable.Repeat(str, @int));
+                }
+                
                 return op switch
                 {
-                    "+" => str + @int,
-                    "*" => string.Concat(Enumerable.Repeat(str, @int)),
+                    "+" => str + right.ToWuzhString(),
                     _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }
                 
-            if (left is int int1 && right is string str1)
+            if (right is string str1)
             {
-                return op switch
+                if (left is int @int && op == "*")
                 {
-                    "+" => int1 + str1,
-                    "*" => string.Concat(Enumerable.Repeat(str1, int1)),
-                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
-                };
-            }
-            
-            if (left is string str3 && right is decimal int3)
-            {
-                return op switch
-                {
-                    "+" => str3 + int3,
-                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
-                };
-            }
+                    return string.Concat(Enumerable.Repeat(str1, @int));
+                }
                 
-            if (left is decimal decimal4 && right is string str14)
-            {
                 return op switch
                 {
-                    "+" => decimal4 + str14,
-                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
-                };
-            }
-            
-            if (left is string boolStr && right is bool bool1)
-            {
-                return op switch
-                {
-                    "+" => boolStr + bool1.ToWuzhString(),
-                    _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
-                };
-            }
-            
-            if (left is bool bool2 && right is string strBool)
-            {
-                return op switch
-                {
-                    "+" => bool2.ToWuzhString() + strBool,
+                    "+" => left.ToWuzhString() + str1,
                     _ => throw _exceptionsFactory.UnknownOperator(op, line, column)
                 };
             }

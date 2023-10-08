@@ -47,11 +47,11 @@ else
 
 # Get the keys from the dictionary
 keys := GetKeys(dict);
-PrintLine("Keys",keys);
+PrintLine("Keys: " + keys);
 
 # Get the values from the dictionary
 values := GetValues(dict);
-PrintLine("Values",values);
+PrintLine("Values: " + values);
 
 t := TypeOf(dict);
 Sleep(0);
@@ -92,4 +92,4 @@ obj := intVal;
 strObj := ToString(obj);
 PrintLine("Object to String: " + strObj);
 
-PrintLine([1] + [2]);
+PrintLine("Concatted array: "+ ([1] + [2]));
