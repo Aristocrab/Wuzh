@@ -2,13 +2,22 @@
 
 string input;
 
-var file = "";
+const string version = "0.3.0";
+var file = "test.wuzh";
 
 if(args.Length == 0)
 {
     input = 
     """
     a := "Usage: wuzh.exe <file>";
+    Print(a);
+    """;
+}
+else if(args[0] == "-v" || args[0] == "--version")
+{
+    input = 
+    $"""
+    a := "Wuzh {version}";
     Print(a);
     """;
 }
@@ -29,26 +38,6 @@ else
         """;
     }
 }
-
-#if DEBUG
-
-input = """
-
-dict := {
-    "a": 1,
-    "b": 2,
-    "c": 3,
-    "d": 4,
-};
-
-dict["a"] = 5;
-dict["e"] = 6;
-
-PrintLine(dict);
-
-""";
-
-#endif
 
 var interpreter = new WuzhInterpreter(input, file);
 interpreter.Run();
