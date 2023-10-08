@@ -8,58 +8,56 @@ func HelloWorld() {
 HelloWorld();
 ```
 
-## Зміст
+## Contents
 
-- [Файли](#файли)
-- [Приклади](#приклади)
-- [Синтаксис](#синтаксис)
-    -  [Змінні та константи](#змінні-та-константи)
-    -  [Присвоєння](#присвоєння)
-    -  [Базові типи](#базові-типи)
-    -  [Індексація](#індексація)
-    -  [Умовний оператор "if"](#умовний-оператор-if)
-    -  [Цикл "while"](#цикл-while)
-    -  [Цикл "for"](#цикл-for)
-    -  [Цикл "foreach"](#цикл-for-для-колекцій-та-строк)
-    -  [Оголошення функцій](#оголошення-функцій)
-    -  [Виклик функцій](#виклик-функцій)
-    -  [Оператори порівняння](#оператори-порівняння)
-    -  [Операції](#операції)
-- [Базові типи](#базові-типи)
-- [Стандартна бібліоткеа](#стандартна-бібліотека)
+- [Files](#files)
+- [Examples](#examples)
+- [Syntax](#syntax)
+    - [Variables and constants](#variables-and-constants)
+    - [Assignment](#assignment)
+    - [Basic types](#basic-types)
+    - [Indexing](#indexing)
+    - [If statement](#if-statement)
+    - [While loop](#while-loop)
+    - [For foop](#for-loop)
+    - [Function declarations](#function-declarations)
+    - [Function calls](#function-calls)
+    - [Comparison operators](#comparison-operators)
+    - [Operations](#operations)
+- [Basic types](#basic-types)
+- [Standard library](#standard-library)
 
-## Файли
+## Files
 
-`wuzh.exe` - інтерпретатор
+`wuzh.exe` - interpreter
 
-`*.wuzh` - розширення файлів
+`*.wuzh` - file extensions
 
-## Приклади
+## Examples
 
 - [Examples/](https://github.com/Aristocrab/wuzh/tree/main/Examples)
-    -  [helloworld.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/helloworld.wuzh)
-    -  [factorial.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/factorial.wuzh)
-    -  [brainfuck.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/brainfuck.wuzh)
-    -  [morse.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/morse.wuzh)
-    -  [syntaxExample.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/syntaxExample.wuzh)
+    - [helloworld.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/helloworld.wuzh)
+    - [factorial.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/factorial.wuzh)
+    - [brainfuck.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/brainfuck.wuzh)
+    - [morse.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/morse.wuzh)
+    - [syntaxExample.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/syntaxExample.wuzh)
 
+## Syntax
 
-## Синтаксис
-
-### Змінні та константи
+### Variables and constants
 
 ```wuzh
 const x := 42;
 y := 3.14;
 ```
 
-### Присвоєння
+### Assignment
 
 ```wuzh
 x = 21 * 2;
 ```
 
-### Базові типи
+### Basic types
 
 ```wuzh
 u := unit;              # Unit
@@ -75,7 +73,17 @@ d := {                  # Dictionary
 };
 ```
 
-### Індексація
+### Type hinting
+
+```wuzh
+String str := "string";
+
+func Function(Int a, b) -> Int {
+    return a * b;
+}
+```
+
+### Indexing
 
 ```wuzh
 arr := [1, 2, 3];
@@ -90,23 +98,24 @@ dict := {
 };
 d := dict["name"];   # d = "Vlad"
 
+# Index assignment
 arr[0] = 3;
 str[0] = "B";
 dict["name"] = "Bob";
 dict["height"] = "180cm";
 ```
 
-### Умовний оператор "if"
+### If statement
 
 ```wuzh
 if (x > 30) {
-    PrintLine("x більше 30");
+    PrintLine("x is greater than 30");
 } else {
-    PrintLine("x менше або рівне 30");
+    PrintLine("x is less than or equal to 30");
 }
 ```
 
-### Цикл "while"
+### While loop
 
 ```wuzh
 while (x > 0) {
@@ -115,7 +124,7 @@ while (x > 0) {
 }
 ```
 
-### Цикл "for"
+### For loop
 
 ```wuzh
 for (i := 0, i < 5, i = i + 1) {
@@ -123,7 +132,7 @@ for (i := 0, i < 5, i = i + 1) {
 }
 ```
 
-### Цикл "for" для колекцій та строк
+#### For(each) loop
 
 ```wuzh
 arr := [1, 2, 3, 4, 5];
@@ -142,11 +151,15 @@ for (c in str) {
 }
 ```
 
-### Оголошення функцій
+### Function declaration
 
 ```wuzh
 func add(a, b) {
     return a + b;
+}
+
+func mult(Int a, Int b) -> Int {
+    return a * b;
 }
 
 func factorial(n)
@@ -161,205 +174,58 @@ func factorial(n)
     }
 }
 
-# return type is Unit
+# Return type is Unit
 func printName(name) {
     PrintLine(name);
 }
 ```
 
-### Виклик функцій
+### Function call
 
 ```wuzh
 result := add(3, 4);
 ```
 
-### Оператори порівняння
+### Comparison operators
 
 ```wuzh
 # > < >= <= == !=
 
 if (x > y) {
-    PrintLine("x більше y");
+    PrintLine("x is greater than y");
 }
 
 if (a == b) {
-    PrintLine("a дорівнює b");
+    PrintLine("a is equal to b");
 }
 ```
 
-### Операції
+### Operations
 
 ```wuzh
-# Операції над числами
+# Operations on numbers
 + - * / // %
 
-# Операції над строками
+# String operations
 + *
 
 strConcat := "Hello" + " " + "world!"; # strConcat = "Hello world!"
 strRepeat := "Hello" * 3;              # strRepeat = "HelloHelloHello"
-``````
-
-## Базові типи
-
-Мова wuzh підтримує наступні типи:
-
-- `Unit`: Пустий тип
-- `Integer`: Ціле число
-- `Double`: Дійсне число
-- `String`: Рядок
-- `Boolean`: Логічний тип
-- `Array`: Масив
-- `Dictionary`: Словник
-
-## Стандартна бібліотека
-
-Список функцій стандартної бібліотеки: [StdLib/](https://github.com/Aristocrab/Wuzh/blob/main/Wuzh/StandardLibrary/Functions.cs);
-
-### Функція `PrintLine`
-
-```wuzh
-func PrintLine(value)
 ```
 
-Ця функція виводить значення `value` в консоль, додаючи символ нового рядка після виводу.
+## Basic types
 
-### Функція `Print`
+The Wuzh language supports the following types:
 
-```wuzh
-func Print(value)
-```
+- `Unit`: Empty type
+- `Integer`: Integer
+- `Double`: Double
+- `String`: String
+- `Boolean`: Boolean
+- `Array`: Array
+- `Dictionary`: Dictionary
+- `Any`: Auto-detects type in variables, any in functions
 
-Ця функція виводить значення `value` в консоль без символу нового рядка.
+## Standard library
 
-### Функція `ReadLine`
-
-```wuzh
-func ReadLine()
-```
-
-Ця функція зчитує рядок із консолі та повертає його як рядкове значення.
-
-### Функція `Sleep`
-
-```wuzh
-func Sleep(milliseconds)
-```
-
-Ця функція призупиняє виконання програми на вказану кількість мілісекунд.
-
-### Функція `String`
-
-```wuzh
-func String(obj)
-```
-
-Ця функція конвертує об'єкт `obj` в рядкове представлення та повертає його.
-
-### Функція `TypeOf`
-
-```wuzh
-func TypeOf(obj)
-```
-
-Ця функція повертає рядок, який представляє тип об'єкта `obj`.
-
-### Функція `Pow`
-
-```wuzh
-func Pow(x, y)
-```
-
-Ця функція обчислює `x` у ступені `y` та повертає результат.
-
-### Функція `Append`
-
-```wuzh
-func Append(list, value)
-```
-
-Ця функція додає значення `value` до списку `list`.
-
-### Функція `Remove`
-
-```wuzh
-func Remove(list, index)
-```
-
-Ця функція видаляє елемент за індексом `index` зі списку `list`.
-
-### Функція `Clear`
-
-```wuzh
-func Clear(list)
-```
-
-Ця функція очищує список `list`, видаляючи всі його елементи.
-
-### Функція `Length`
-
-```wuzh
-func Length(list)
-
-func Length(str)
-```
-
-Ця функція повертає кількість елементів у списку `list` або довжину рядка `str`.
-
-### Функція `Array`
-
-```wuzh
-func Array(size)
-
-func Array(size, value)
-```
-
-Ця функція створює масив заданого розміру `size` та заповнює його значенням `value`.
-
-### Функція `AsciiCode`
-
-```wuzh
-func AsciiCode(c)
-```
-
-Ця функція повертає код ASCII символу `c`.
-
-### Функція `Char`
-
-```wuzh
-func Char(asciiCode)
-```
-
-Ця функція повертає символ з кодом ASCII `asciiCode`.
-
-### Функція `Int`
-
-```wuzh
-func Int(str)
-```
-
-Ця функція конвертує рядок `str` в ціле число.
-
-### Функція `Contains`
-
-```wuzh
-func Contains(dict, key)
-```
-
-Ця функція повертає `true`, якщо словник `dict` містить ключ `key`, інакше повертає `false`.
-
-### Функція `GetKeys`
-
-```wuzh
-func GetKeys(dict)
-```
-
-Ця функція повертає список ключів словника `dict`.
-
-### Функція `GetValues`
-
-```wuzh
-func GetValues(dict)
-```
-
-Ця функція повертає список значень словника `dict`.
+List of functions in the standard library: [StdLib/](https://github.com/Aristocrab/Wuzh/blob/main/Wuzh/StandardLibrary/);
