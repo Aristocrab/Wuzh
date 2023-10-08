@@ -231,4 +231,4 @@ The Wuzh language supports the following types:
 
 ## Standard library
 
-List of functions in the standard library: [StdLib/](https://github.com/Aristocrab/Wuzh/blob/main/Wuzh/StandardLibrary/);
+List of functions in the standard library: [StdLib/](https://github.com/Aristocrab/Wuzh/blob/main/Wuzh/StandardLibrary/)
