@@ -28,8 +28,6 @@ public class Variable
     public int FunctionDepth { get; }
     public int ScopeDepth { get; }
 
-    public string Caller { get; }
-    
     public Variable(string name, object value, BasicType basicType, bool isConstant, int functionDepth, int scopeDepth)
     {
         Name = name;
