@@ -1,0 +1,95 @@
+
+# Create an array of size 5 with default value "Hello"
+arr := Arr(5, "Hello");
+
+# Append a new value to the array
+Append(arr, "World");
+
+# Set the value at index 2 to 42
+SetValue(arr, 2, 42);
+
+# Remove the element at index 1
+Remove(arr, 1);
+
+# Clear the array
+Clear(arr);
+
+# Get the length of the array and print it
+length := Length(arr);
+PrintLine("Array length: " + length);
+
+# Print a line with values
+PrintLine("Hello", "World!");
+
+# Print an empty line
+PrintLine();
+
+# Print without a new line
+Print("This is", "Wuzh.");
+
+# Create a dictionary
+dict := {
+    "Name": "John",
+    "Age": 30,
+    "City": "New York"
+};
+
+# Check if the dictionary contains a key
+containsKey := Contains(dict, "Age");
+if (containsKey)
+{
+    PrintLine("The dictionary contains the key 'Age'.");
+}
+else
+{
+    PrintLine("The dictionary does not contain the key 'Age'.");
+}
+
+# Get the keys from the dictionary
+keys := GetKeys(dict);
+PrintLine("Keys",keys);
+
+# Get the values from the dictionary
+values := GetValues(dict);
+PrintLine("Values",values);
+
+t := TypeOf(dict);
+Sleep(0);
+
+zz := Pow(2, 3);
+
+stlLen := Length("Hello");
+
+# Convert between types using TypeConvertFunctions
+
+# Convert an integer to a string
+intVal := 42;
+strVal := IntToString(intVal);
+PrintLine("Integer to String: " + strVal);
+
+# Convert a string to an integer
+strNum := "123";
+intNum := StringToInt(strNum);
+PrintLine("String to Integer: " + intNum);
+
+# Convert a character to its ASCII code
+charVal := "A";
+asciiCode := AsciiCode(charVal);
+PrintLine("Character to ASCII Code: " + asciiCode);
+
+# Convert an integer to a double
+intDouble := 42;
+doubleVal := IntToDouble(intDouble);
+PrintLine("Integer to Double: " + doubleVal);
+
+# Convert a double to an integer
+doubleInt := 3.14;
+intFromDouble := DoubleToInt(doubleInt);
+PrintLine("Double to Integer: " + intFromDouble);
+
+# Convert an object to a string
+obj := intVal;
+strObj := ToString(obj);
+PrintLine("Object to String: " + strObj);
+
+PrintLine([1] + [2]);

@@ -1,5 +1,5 @@
 func runBrainfuck(code) {
-    memory := Array(3000, 0);
+    memory := Arr(3000, 0);
     pointer := 0;
     
     stack := [];
@@ -14,7 +14,7 @@ func runBrainfuck(code) {
             SetValue(memory, pointer, memory[pointer] - 1);
         }
         if (char == ".") {
-            Print(Char(memory[pointer]));
+            Print(IntAsAscii(memory[pointer]));
         }
         if (char == ",") {
             SetValue(memory, pointer, AsciiCode(ReadLine()));
