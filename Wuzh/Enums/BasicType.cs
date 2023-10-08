@@ -3,12 +3,13 @@
 public enum BasicType
 {
     Unit,
-    Integer,
+    Int,
     Double,
     String,
-    Boolean,
+    Bool,
     Array,
     Dictionary,
     
+    Any,
     Unknown
 }
