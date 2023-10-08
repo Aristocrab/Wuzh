@@ -54,7 +54,7 @@ public class WuzhTests
         // Arrange
         const string input = """
         func runBrainfuck(code) {
-            memory := Array(3000, 0);
+            memory := Arr(3000, 0);
             pointer := 0;
             
             stack := [];
@@ -69,7 +69,7 @@ public class WuzhTests
                     SetValue(memory, pointer, memory[pointer] - 1);
                 }
                 if (char == ".") {
-                    Print(Char(memory[pointer]));
+                    Print(IntAsAscii(memory[pointer]));
                 }
                 if (char == ",") {
                     SetValue(memory, pointer, AsciiCode(ReadLine()));
@@ -450,8 +450,6 @@ public class WuzhTests
         action.Should().NotThrow();
     }
     
-    
-
     [Fact]
     public void Test_UnrecognizedToken()
     {
@@ -500,6 +498,7 @@ public class WuzhTests
         // Assert
         action.Should().Throw<InterpreterException>();
     }
+    
     [Fact]
     public void Test_UndefinedVariable()
     {
@@ -656,6 +655,80 @@ public class WuzhTests
         // Arrange
         const string input = """
         a := -"Hello";
+        """;
+        var interpreter = new WuzhInterpreter(input, "", debug: true);
+
+        // Act
+        var action = () => interpreter.Run();
+
+        // Assert
+        action.Should().Throw<InterpreterException>();
+    }
+    
+    [Fact]
+    public void Test_HintedTypes() 
+    {
+        // Arrange
+        const string input = """
+        Int a := 5;
+        Double b := 5.0;
+        Bool c := true;
+        String d := "Hello";
+        Array e := [1, 2];
+        Dict f := {"a": 1};
+        Dictionary g := {"a": 1};
+        
+        Any anyA := a;
+        Any anyB := b;
+        Any anyC := c;
+        Any anyD := d;
+        Any anyE := e;
+        Any anyF := f;
+        Any anyG := g;
+        """;
+        var interpreter = new WuzhInterpreter(input, "", debug: true);
+
+        // Act
+        var action = () => interpreter.Run();
+
+        // Assert
+        action.Should().NotThrow();
+    }
+    
+    [Fact]
+    public void Test_FunctionParameterTypesCanNotOverlap() 
+    {
+        // Arrange
+        const string input = """
+        func f(a, Int b) {
+            return a + b;
+        }
+        
+        func f(Int a, b) {
+            return a - b;
+        }
+        """;
+        var interpreter = new WuzhInterpreter(input, "", debug: true);
+
+        // Act
+        var action = () => interpreter.Run();
+
+        // Assert
+        action.Should().Throw<InterpreterException>();
+    }
+    
+    [Fact]
+    public void Test_FunctionParameterTypesCanNotOverlapWithDifferentTypes() 
+    {
+        // Arrange
+        const string input = """
+        func f(a, Int b) {
+            return a + b;
+        }
+        
+        func f(Double a, b) {
+            return a - b;
+        }
         """;
         var interpreter = new WuzhInterpreter(input, "", debug: true);
 
