@@ -1,5 +1,7 @@
 # Wuzh language
 
+[![Generic badge](https://img.shields.io/badge/release-0.3-blue.svg)](https://shields.io/)
+
 ```wuzh
 func HelloWorld() {
     PrintLine("Hello, world!");
