@@ -64,14 +64,28 @@ x = 21 * 2;
 ### Basic types
 
 ```wuzh
-u := unit;              # Unit
-x := 42;                # Integer
-y := 3.14;              # Double
-z := "Hello";           # String
-a := true;              # Boolean
-b := [1, "two", 3.14];  # Array
-range := [1..10];       # Array from 1 to 10
-d := {                  # Dictionary
+# Unit
+u := unit;
+
+# Integer
+x := 42;                
+l := 1_000_000;         
+
+# Double
+y := 3.14;              
+
+# String
+z := "Hello";           
+
+# Boolean
+a := true;              
+
+# Array
+b := [1, "two", 3.14];  
+range := [1..10];       
+
+# Dictionary
+d := {                  
     "name": "Vlad", 
     "age": 19
 };
@@ -81,9 +95,18 @@ d := {                  # Dictionary
 
 ```wuzh
 String str := "string";
+Any str2 := "string2"; # str2 type is String
 
-func Function(Int a, b) -> Int {
+func Function(Int a, Int b) -> Int {
     return a * b;
+}
+
+func Function2(Any a, Any b) -> Any {
+    return a + b;
+}
+
+func Function3(a, b) {
+    return a / b;
 }
 ```
 
@@ -207,14 +230,16 @@ if (a == b) {
 ### Operations
 
 ```wuzh
-# Operations on numbers
-+ - * / // %
+# Operations on numbers: + - * / // %
+number := (1 + 2 * 3) / 2;              # number = 3.5
 
-# String operations
-+ *
+# Operations on arrays: +
+arrConcat := [1, 2] + [3, 4];           # arrConcat = [1, 2, 3, 4]
 
-strConcat := "Hello" + " " + "world!"; # strConcat = "Hello world!"
-strRepeat := "Hello" * 3;              # strRepeat = "HelloHelloHello"
+# String operations: + *
+
+strConcat := "Hello" + " " + "world!";  # strConcat = "Hello world!"
+strRepeat := "Hello" * 3;               # strRepeat = "HelloHelloHello"
 ```
 
 ## Basic types
@@ -228,7 +253,7 @@ The Wuzh language supports the following types:
 - `Boolean`: Boolean
 - `Array`: Array
 - `Dictionary`: Dictionary
-- `Any`: Auto-detects type in variables, any in functions
+- `Any`: Auto-detects type in variables, means any type in function parameters and return type
 
 ## Standard library
 
