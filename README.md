@@ -1,6 +1,7 @@
 # Wuzh language
 
-[![Generic badge](https://img.shields.io/badge/release-0.3-blue.svg)](https://shields.io/)
+![Release version badge](https://img.shields.io/github/v/release/Aristocrab/Wuzh
+)
 
 ```wuzh
 func HelloWorld() {
