@@ -31,7 +31,8 @@ comparisonSign: (GreaterThan | GreaterOrEqual | LessThan | LessOrEqual | Equals 
 
 basicTypeValue: Unit | Integer | Double | String | Boolean | array | range | dictionary;
 
-functionCall: Identificator LeftParenthesis (expression (Comma expression)*)? RightParenthesis;
+functionCall: functionName LeftParenthesis (expression (Comma expression)*)? RightParenthesis;
+functionName: Identificator | Type;
 
 functionDeclaration: 'func' Identificator LeftParenthesis (functionParameters)? RightParenthesis 
     (FunctionTypeSign Type)?

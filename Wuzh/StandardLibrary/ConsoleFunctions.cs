@@ -31,4 +31,16 @@ public static class ConsoleFunctions
     {
         return Console.ReadLine() ?? "";
     }
+    
+    public static Unit Clear()
+    {
+        Console.Clear();
+        return Unit.Value;
+    }
+    
+    public static Unit DisableCursor(bool disable)
+    {
+        Console.CursorVisible = !disable;
+        return Unit.Value;
+    }
 }

@@ -35,7 +35,8 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     public override object VisitImportStatement(WuzhParser.ImportStatementContext context)
     {
-        var importFilePath = context.String().GetText().Replace("\"", "").Trim();
+        var importFilePath = context.String().GetText()
+            .Trim('\"');
         if (!File.Exists(importFilePath))
         {
             throw _exceptionsFactory.ImportFileNotFound(importFilePath, 
@@ -78,42 +79,47 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var existingVariable = GetVariable(variableName);
         if(existingVariable is not null)
         {
-            var line = context.Start.Line;
-            var column = context.Start.Column;
-                
-            throw _exceptionsFactory.VariableAlreadyDeclared(variableName, line, column);
+            throw _exceptionsFactory
+                .VariableAlreadyDeclared(variableName,
+                    context.Start.Line, 
+                    context.Start.Column);
         }
             
-        var value = VisitExpression(context.expression());
+        var variableValue = VisitExpression(context.expression());
+        var variableTypeByValue = GetBasicType(variableValue);
 
-        var variableType = GetBasicType(value);
-
-        var typeHint = context.Type();
-        if (typeHint is not null)
+        var variableHintedType = context.Type();
+        if (variableHintedType is not null)
         {
-            var hintedType = GetBasicTypeByName(typeHint.GetText());
+            var hintedType = GetBasicTypeByName(variableHintedType.GetText());
 
+            // Implicit cast to string
             if (hintedType == BasicType.String)
             {
-                value = value.ToWuzhString();
-                variableType = BasicType.String;
+                variableValue = variableValue.ToWuzhString();
+                variableTypeByValue = BasicType.String;
             }
-            
-            if (hintedType == BasicType.Double && variableType == BasicType.Int)
+            // Implicit cast from int to double
+            else if (hintedType == BasicType.Double && variableTypeByValue == BasicType.Int)
             {
-                value = (decimal)(int)value;
-                variableType = BasicType.Double;
+                variableValue = (decimal)(int)variableValue;
+                variableTypeByValue = BasicType.Double;
             }
-            else if (hintedType != variableType && hintedType != BasicType.Any)
+            else if (hintedType != variableTypeByValue && hintedType != BasicType.Any)
             {
-                throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(GetBasicTypeByName(typeHint.GetText()), 
-                    variableType, 
+                throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(hintedType, 
+                    variableTypeByValue, 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
         }
         
-        var variable = new Variable(variableName, value, variableType, isConstant, _functionDepth, _scopeDepth);
+        var variable = new Variable(variableName, 
+            variableValue, 
+            variableTypeByValue, 
+            isConstant, 
+            _functionDepth,
+            _scopeDepth);
 
         _variables.Add(variable);
 
@@ -123,31 +129,44 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
     public override object VisitAssignment(WuzhParser.AssignmentContext context)
     {
         var variableName = context.Identificator().GetText();
-        var value = Visit(context.expression());
+        var variableValue = Visit(context.expression());
 
-        var variable = GetVariable(variableName);
-        if (variable is not null)
+        var existingVariable = GetVariable(variableName);
+        if (existingVariable is not null)
         {
-            if (variable.IsConstant)
+            if (existingVariable.IsConstant)
             {
                 throw _exceptionsFactory.CanNotAssignToConstant(variableName, 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
-                
-            if (variable.BasicType != GetBasicType(value))
+            
+            // Implicit cast to string
+            if (existingVariable.BasicType == BasicType.String)
             {
-                throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(variable.BasicType, 
-                    GetBasicType(value), 
+                variableValue = variableValue.ToWuzhString();
+            }
+            // Implicit cast from int to double
+            else if (existingVariable.BasicType  == BasicType.Double 
+                && GetBasicType(variableValue) == BasicType.Int)
+            {
+                variableValue = (decimal)(int)variableValue;
+            }
+            if (existingVariable.BasicType != GetBasicType(variableValue))
+            {
+                throw _exceptionsFactory.ValueOfTypeCanNotBeAssigned(existingVariable.BasicType, 
+                    GetBasicType(variableValue), 
                     context.expression().Start.Line, 
                     context.expression().Start.Column);
             }
                 
-            variable.Value = value;
+            existingVariable.Value = variableValue;
         }
         else
         {
-            throw _exceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _exceptionsFactory.VariableNotDeclared(variableName, 
+                context.Start.Line, 
+                context.Start.Column);
         }
 
         return End;
@@ -200,18 +219,20 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             }
             else if (variable.BasicType == BasicType.Dictionary)
             {
-                var arrVariable = (Dictionary<string, object>)variable.Value;
-                var strIndex = ((string)index);
+                var dictVariable = (Dictionary<string, object>)variable.Value;
+                var stringIndex = (string)index;
                 
-                arrVariable[strIndex] = value;
+                dictVariable[stringIndex] = value;
                     
-                variable.Value = arrVariable;
+                variable.Value = dictVariable;
             }
                 
         }
         else
         {
-            throw _exceptionsFactory.VariableNotDeclared(variableName, context.Start.Line, context.Start.Column);
+            throw _exceptionsFactory.VariableNotDeclared(variableName, 
+                context.Start.Line, 
+                context.Start.Column);
         }
 
         return End;
@@ -272,8 +293,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 context.multiplyExpression(0).Start.Line, 
                 context.multiplyExpression(0).Start.Column);
         }
-            
-            
+        
         if (context.comparisonRightSide() is { } e)
         {
             var right = VisitExpression(e.expression());
@@ -776,7 +796,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     public override object VisitFunctionCall(WuzhParser.FunctionCallContext context)
     {
-        var functionName = context.Identificator().GetText();
+        var functionName = context.functionName().GetText();
         var argumentsValues = new List<object>();
             
         if (context.expression().Length > 0)

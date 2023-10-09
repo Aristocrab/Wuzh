@@ -4,7 +4,7 @@ namespace Wuzh.StandardLibrary;
 
 public static class ArrayFunctions
 {
-    public static List<object> Arr(int size)
+    public static List<object> Array(int size)
     {
         var arrayOfUnits = new Unit[size];
 
@@ -16,7 +16,7 @@ public static class ArrayFunctions
         return new List<object>(arrayOfUnits);
     }
     
-    public static List<object> Arr(int size, object defaultValue)
+    public static List<object> Array(int size, object defaultValue)
     {
         var arrayOfUnits = new object[size];
 

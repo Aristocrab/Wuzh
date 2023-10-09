@@ -1,5 +1,5 @@
 func runBrainfuck(code) {
-    memory := Arr(3000, 0);
+    memory := Array(3000, 0);
     pointer := 0;
     
     stack := [];

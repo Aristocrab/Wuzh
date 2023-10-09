@@ -1,6 +1,6 @@
 
 # Create an array of size 5 with default value "Hello"
-arr := Arr(5, "Hello");
+arr := Array(5, "Hello");
 
 # Append a new value to the array
 Append(arr, "World");
