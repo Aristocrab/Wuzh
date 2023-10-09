@@ -4,7 +4,7 @@ public static class TypeConvertFunctions
 {
     public static string ToString(object obj)
     {
-        return obj.ToString() ?? "";
+        return obj.ToWuzhString();
     }
     
     public static int AsciiCode(string c)
