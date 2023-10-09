@@ -65,7 +65,7 @@ dictionaryEntry: String Colon expression;
 // Types
 Unit: 'unit';
 Boolean: 'true' | 'false';
-Integer: '0' | [1-9] [0-9]*;
+Integer: '0' | [1-9] ('_'? [0-9])*;
 Double: [0-9]+ '.' [0-9]+;
 String: '"' (~["\\\r\n] | '\\' .)* '"';
 

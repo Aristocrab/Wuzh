@@ -415,8 +415,10 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             if (context.basicTypeValue().Integer() != null)
             {
                 var minus = context.Minus() != null ? -1 : 1;
-                return minus * 
-                       int.Parse(context.basicTypeValue().Integer().GetText());
+                var value = context.basicTypeValue()
+                    .Integer().GetText()
+                    .Replace("_", ""); // remove digit separators
+                return minus * int.Parse(value);
             }
                 
             if (context.basicTypeValue().Double() != null)
