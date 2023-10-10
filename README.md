@@ -44,6 +44,7 @@ HelloWorld();
     - [factorial.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/factorial.wuzh)
     - [brainfuck.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/brainfuck.wuzh)
     - [morse.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/morse.wuzh)
+    - [stdlib.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/stdlib.wuzh)
     - [syntaxExample.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/syntaxExample.wuzh)
 
 ## Syntax
