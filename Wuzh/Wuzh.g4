@@ -1,7 +1,7 @@
 ﻿grammar Wuzh;
 
 // Parser rules
-program: (importStatement*)? statement*;
+program: importStatement* statement*;
 
 importStatement: 'import' String Semicolon;
 

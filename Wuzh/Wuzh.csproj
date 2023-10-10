@@ -18,17 +18,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Antlr4" Version="4.6.6">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+      <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
       <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
-      <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
 
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="GeneratedParser\" />
     </ItemGroup>
 
 </Project>

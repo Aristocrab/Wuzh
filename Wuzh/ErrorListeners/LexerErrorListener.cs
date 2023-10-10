@@ -12,7 +12,7 @@ public class LexerErrorListener : IAntlrErrorListener<int>
         _exceptionsFactory = exceptionsFactory;
     }
 
-    public void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg,
+    public void SyntaxError(TextWriter textWriter, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg,
         RecognitionException e)
     {
         var mess = "";

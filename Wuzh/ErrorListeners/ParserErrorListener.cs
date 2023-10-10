@@ -12,7 +12,7 @@ public class ParserErrorListener : IAntlrErrorListener<IToken>
         _exceptionsFactory = exceptionsFactory;
     }
 
-    public void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg,
+    public void SyntaxError(TextWriter textWriter, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg,
         RecognitionException e)
     {
         if (msg.Contains("missing"))
