@@ -10,7 +10,7 @@
 
     <PropertyGroup>
       <PublishAot>true</PublishAot>
-  </PropertyGroup>
+    </PropertyGroup>
 
     <ItemGroup>
       <Content Include="Wuzh.g4">
@@ -20,11 +20,6 @@
     <ItemGroup>
       <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
       <PackageReference Include="Ardalis.SmartEnum" Version="7.0.0" />
-
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="GeneratedParser\" />
     </ItemGroup>
 
 </Project>
