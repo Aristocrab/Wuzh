@@ -49,11 +49,11 @@ HelloWorld();
 
 ## Syntax
 
-### Variables and constants
+### Declaration of variables and consts
 
 ```wuzh
-const x := 42;
-y := 3.14;
+x := 4;
+const PI := 3.14;
 ```
 
 ### Assignment
