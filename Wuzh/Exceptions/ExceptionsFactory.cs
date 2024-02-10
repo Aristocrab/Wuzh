@@ -27,7 +27,7 @@ public class ExceptionsFactory
     
     public InterpreterException UnknownOperator(string op, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Error: Unknown operator '{op}'");
+        var exception = BuildInterpreterException(line, column, $"Unknown operator '{op}'");
         return exception;
     }
     
@@ -39,7 +39,7 @@ public class ExceptionsFactory
     
     public InterpreterException OperatorNotSupportedForNotIntOrDoubleValues(string op, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Operator '{op}' not supported for not-integer or non-double values");
+        var exception = BuildInterpreterException(line, column, $"Operator '{op}' is not supported for values that are not integers or doubles");
         return exception;
     }
     
@@ -52,7 +52,7 @@ public class ExceptionsFactory
 
     public InterpreterException ReturnOutsideFunction(int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, "Return outside function");
+        var exception = BuildInterpreterException(line, column, "Return statement outside function");
         return exception;
     }
     
@@ -66,7 +66,7 @@ public class ExceptionsFactory
     public InterpreterException ReturnTypeDoesNotMatchFunctionReturnType(string functionName, BasicType functionReturnType, BasicType returnType, int line, int column)
     {
         var exception = BuildInterpreterException(line, column, 
-            $"Cant return '{returnType}' in function '{functionName}' that returns '{functionReturnType}'");
+            $"Cant return '{returnType}' from function '{functionName}' that returns '{functionReturnType}'");
         return exception;
     }
     
@@ -78,19 +78,19 @@ public class ExceptionsFactory
     
     public InterpreterException ForLoopVariableNotDeclared(string variableName, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"For loop variable '{variableName}' not declared");
+        var exception = BuildInterpreterException(line, column, $"For loop variable '{variableName}' is not declared");
         return exception;
     }
     
     public InterpreterException ForLoopConditionNotDeclared(string variableName, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"For loop condition variable '{variableName}' not declared");
+        var exception = BuildInterpreterException(line, column, $"For loop condition variable '{variableName}' is not declared");
         return exception;
     }
     
-    public InterpreterException UnsupportedTypeAsCollection(string type, int line, int column)
+    public InterpreterException UnsupportedTypeAsCollectionInForeach(string type, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Unsupported type '{type}' as collection");
+        var exception = BuildInterpreterException(line, column, $"Unsupported type '{type}' for iteration");
         return exception;
     }
 
@@ -114,16 +114,10 @@ public class ExceptionsFactory
     
     public InterpreterException DictionaryIndexerMustBeString(BasicType type, int line, int column)
     {
-        var exception = BuildInterpreterException(line, column, $"Dictionary indexer must be string, but was '{type}'");
+        var exception = BuildInterpreterException(line, column, $"Dictionary indexer must be 'string', but was '{type}'");
         return exception;
     }
-    
-    public InterpreterException ReservedWord(string word, int line, int column)
-    {
-        var exception = BuildInterpreterException(line, column, $"Reserved word '{word}'");
-        return exception;
-    }
-    
+
     public InterpreterException ExpressionIsNotBoolean(string expression, int line, int column)
     {
         var exception = BuildInterpreterException(line, column, $"Expression '{expression}' is not boolean");
@@ -211,8 +205,8 @@ public class ExceptionsFactory
         mess += $"File: \"{FileName}\" ({line}:{column})\nError: {message}.";
         return new InterpreterException(mess);
     }
-    
-    public static string GetLineWithErrorPosition(int line, int column, string input)
+
+    private static string GetLineWithErrorPosition(int line, int column, string input)
     {
         string lineText;
         if (line == 0)

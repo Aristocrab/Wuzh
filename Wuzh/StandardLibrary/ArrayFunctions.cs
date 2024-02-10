@@ -13,7 +13,7 @@ public static class ArrayFunctions
             arrayOfUnits[i] = Unit.Value;
         }
         
-        return new List<object>(arrayOfUnits);
+        return [..arrayOfUnits];
     }
     
     public static List<object> Array(int size, object defaultValue)
@@ -25,7 +25,7 @@ public static class ArrayFunctions
             arrayOfUnits[i] = defaultValue;
         }
         
-        return new List<object>(arrayOfUnits);
+        return [..arrayOfUnits];
     }
     
     public static Unit Append(List<object> list, object value)

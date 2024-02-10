@@ -13,8 +13,8 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 {
     private static readonly object End = new();
         
-    private readonly List<Variable> _variables = new();
-    private readonly List<Function> _functions = new();
+    private readonly List<Variable> _variables = [];
+    private readonly List<Function> _functions = [];
     
     private int _functionDepth;
     private int _scopeDepth;
@@ -746,7 +746,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var collectionValue = VisitExpression(collection.expression());
         var collectionType = GetBasicType(collectionValue);
 
-        EnsureCollectionTypeIsSupported(collectionType, collection.expression().Start.Line, collection.expression().Start.Column);
+        EnsureCollectionTypeIsSupportedInForeach(collectionType, collection.expression().Start.Line, collection.expression().Start.Column);
 
         var statements = context.statement();
         var isStringCollection = collectionType == BasicType.String;
@@ -786,11 +786,11 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
     }
 
-    private void EnsureCollectionTypeIsSupported(BasicType collectionType, int line, int column)
+    private void EnsureCollectionTypeIsSupportedInForeach(BasicType collectionType, int line, int column)
     {
         if (collectionType != BasicType.Array && collectionType != BasicType.String)
         {
-            throw _exceptionsFactory.UnsupportedTypeAsCollection(collectionType.ToString(), line, column);
+            throw _exceptionsFactory.UnsupportedTypeAsCollectionInForeach(collectionType.ToString(), line, column);
         }
     }
 
@@ -873,7 +873,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         var functionName = context.Identificator().GetText();
         var parameters = 
             context.functionParameters()?.parameter().ToList()
-            ?? new List<WuzhParser.ParameterContext>();
+            ?? [];
 
         var parametersNames = parameters.Select(x => x.Identificator().GetText()).ToList();
         var parametersTypes = parameters.Select(x => GetBasicTypeByName(x.Type()?.GetText() ?? "")).ToList();
@@ -900,7 +900,6 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
 
         var function = new Function(functionName, 
-            _exceptionsFactory.FileName, 
             parametersNames, 
             parametersTypes,
             context.statement().ToList(),
@@ -959,7 +958,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         
         var valueType = GetBasicType(indexValue);
 
-        if (indexValue is int integerIndex && integerIndex < 0)
+        if (indexValue is < 0)
         {
             throw _exceptionsFactory.IndexOutOfRangeException(index.Start.Line, index.Start.Column);
         }
