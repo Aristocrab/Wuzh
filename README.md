@@ -3,7 +3,7 @@
 ![Release version badge](https://img.shields.io/github/v/release/Aristocrab/Wuzh
 )
 
-```wuzh
+```go
 func HelloWorld() {
     PrintLine("Hello, world!");
 }
@@ -16,7 +16,7 @@ HelloWorld();
 - [Files](#files)
 - [Examples](#examples)
 - [Syntax](#syntax)
-    - [Variables and constants](#variables-and-constants)
+    - [Declaration](#declaration)
     - [Assignment](#assignment)
     - [Basic types](#basic-types)
     - [Type hinting](#type-hinting)
@@ -45,26 +45,26 @@ HelloWorld();
     - [brainfuck.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/brainfuck.wuzh)
     - [morse.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/morse.wuzh)
     - [stdlib.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/stdlib.wuzh)
-    - [syntaxExample.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/syntaxExample.wuzh)
+    - [typeHinting.wuzh](https://github.com/Aristocrab/wuzh/blob/main/Examples/typeHinting.wuzh)
 
 ## Syntax
 
-### Declaration of variables and consts
+### Declaration
 
-```wuzh
+```go
 x := 4;
 const PI := 3.14;
 ```
 
 ### Assignment
 
-```wuzh
+```go
 x = 21 * 2;
 ```
 
 ### Basic types
 
-```wuzh
+```go
 # Unit
 u := unit;
 
@@ -94,7 +94,7 @@ d := {
 
 ### Type hinting
 
-```wuzh
+```go
 String str := "string";
 Any str2 := "string2"; # str2 type is String
 
@@ -113,7 +113,7 @@ func Function3(a, b) {
 
 ### Indexing
 
-```wuzh
+```go
 arr := [1, 2, 3];
 x := arr[0];        # x = 1
 
@@ -135,7 +135,7 @@ dict["height"] = "180cm";
 
 ### If statement
 
-```wuzh
+```go
 if (x > 30) {
     PrintLine("x is greater than 30");
 } else {
@@ -145,7 +145,7 @@ if (x > 30) {
 
 ### While loop
 
-```wuzh
+```go
 while (x > 0) {
     PrintLine(x);
     x = x - 1;
@@ -154,7 +154,7 @@ while (x > 0) {
 
 ### For loop
 
-```wuzh
+```go
 for (i := 0, i < 5, i = i + 1) {
     PrintLine(i);
 }
@@ -162,7 +162,7 @@ for (i := 0, i < 5, i = i + 1) {
 
 #### For(each) loop
 
-```wuzh
+```go
 arr := [1, 2, 3, 4, 5];
 for (item in arr) {
     PrintLine(item);
@@ -181,7 +181,7 @@ for (c in str) {
 
 ### Function declaration
 
-```wuzh
+```go
 func add(a, b) {
     return a + b;
 }
@@ -210,13 +210,13 @@ func printName(name) {
 
 ### Function call
 
-```wuzh
+```go
 result := add(3, 4);
 ```
 
 ### Comparison operators
 
-```wuzh
+```go
 # > < >= <= == !=
 
 if (x > y) {
@@ -230,7 +230,7 @@ if (a == b) {
 
 ### Operations
 
-```wuzh
+```go
 # Operations on numbers: + - * / // %
 number := (1 + 2 * 3) / 2;              # number = 3.5
 
@@ -247,13 +247,13 @@ strRepeat := "Hello" * 3;               # strRepeat = "HelloHelloHello"
 
 The Wuzh language supports the following types:
 
-- `Unit`: Empty type
-- `Integer`: Integer
-- `Double`: Double
-- `String`: String
-- `Boolean`: Boolean
-- `Array`: Array
-- `Dictionary`: Dictionary
+- `Unit`: Empty type, void analog
+- `Integer`
+- `Double`
+- `String`
+- `Boolean`
+- `Array`
+- `Dictionary`
 - `Any`: Auto-detects type in variables, means any type in function parameters and return type
 
 ## Standard library
