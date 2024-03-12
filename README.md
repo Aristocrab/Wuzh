@@ -1,7 +1,7 @@
-# Wuzh language
+# Wuzh language ([download](https://github.com/Aristocrab/Wuzh/releases))
 
 ![Release version badge](https://img.shields.io/github/v/release/Aristocrab/Wuzh
-)
+) 
 
 ```go
 func HelloWorld() {
@@ -33,7 +33,7 @@ HelloWorld();
 
 ## Files
 
-`wuzh.exe` - interpreter
+`wuzh.exe` - interpreter ([link](https://github.com/Aristocrab/Wuzh/releases))
 
 `*.wuzh` - file extensions
 
