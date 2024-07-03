@@ -1,4 +1,4 @@
-# Wuzh language [(download)](https://github.com/Aristocrab/Wuzh/releases)
+# Wuzh language
 
 ![Release version badge](https://img.shields.io/github/v/release/Aristocrab/Wuzh
 ) 
@@ -10,6 +10,8 @@ func HelloWorld() {
 
 HelloWorld();
 ```
+
+ [Download exe](https://github.com/Aristocrab/Wuzh/releases)
 
 ## Contents
 
