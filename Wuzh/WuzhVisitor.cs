@@ -768,7 +768,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         return End;
     }
 
-    private IEnumerable<object> GetCollectionElements(object collection, bool isStringCollection)
+    private static IEnumerable<object> GetCollectionElements(object collection, bool isStringCollection)
     {
         if (isStringCollection)
         {
@@ -1198,7 +1198,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
             .Where(method => method.Name == functionName 
                              && (method.GetParameters().Length == arguments.Length 
                                  || (method.GetParameters().Length == 1 
-                                     && method.GetParameters().First().ParameterType == typeof(object[]))))
+                                     && method.GetParameters()[0].ParameterType == typeof(object[]))))
             .ToList();
 
         MethodInfo? method;
@@ -1223,7 +1223,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
         }
         
         var methodParameters = method.GetParameters();
-        if (methodParameters.Length == 1 && methodParameters.First().ParameterType == typeof(object[]))
+        if (methodParameters.Length == 1 && methodParameters[0].ParameterType == typeof(object[]))
         {
             var paramsArr = new object[] { arguments };
             arguments = paramsArr;

@@ -27,7 +27,7 @@ else
 
     if (File.Exists(file))
     {
-        input = File.ReadAllText(file);
+        input = await File.ReadAllTextAsync(file);
     }
     else
     {

@@ -12,7 +12,7 @@ public class LexerErrorListener : IAntlrErrorListener<int>
         _exceptionsFactory = exceptionsFactory;
     }
 
-    public void SyntaxError(TextWriter textWriter, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg,
+    public void SyntaxError(TextWriter output, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg,
         RecognitionException e)
     {
         var mess = "";
@@ -36,7 +36,7 @@ public class LexerErrorListener : IAntlrErrorListener<int>
 
     private static bool TryRecognizeToken(string token, out string message)
     {
-        if (token.StartsWith("\"") && token.Count(x => x == '"') == 1)
+        if (token.StartsWith('"') && token.Count(x => x == '"') == 1)
         {
             // stiring with no second " 
             message = "string literal was not closed. Expected '\"' at the end of the string";

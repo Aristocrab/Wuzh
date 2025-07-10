@@ -1,4 +1,5 @@
-﻿using Wuzh.Enums;
+﻿using System.Text;
+using Wuzh.Enums;
 
 namespace Wuzh.Exceptions;
 
@@ -234,12 +235,13 @@ public class ExceptionsFactory
         column -= spacesAtStart;
         lineText = lineText.TrimStart();
         
-        var ret = lineText + '\n';
+        var ret = new StringBuilder(lineText + '\n');
         for (var i = 0; i < column; i++)
         {
-            ret += ' ';
+            ret.Append(' ');
         }
-        ret += "^\n";
-        return ret;
+        ret.Append("^\n");
+        
+        return ret.ToString();
     }
 }
