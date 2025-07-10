@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Wuzh.Exceptions;
 
 namespace Wuzh.Tests;
@@ -20,7 +20,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().NotThrow();
+        action.ShouldNotThrow();
     }
     
     [Fact]
@@ -38,7 +38,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().NotThrow();
+        action.ShouldNotThrow();
     }
     
     [Fact]
@@ -68,7 +68,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().NotThrow();
+        action.ShouldNotThrow();
     }
     
     [Fact]
@@ -84,7 +84,7 @@ public class WuzhTests
         var action = () => new WuzhInterpreter(input, "", debug: true);
         
         // Assert
-        action.Should().Throw<ParserException>();
+        action.ShouldThrow<ParserException>();
     }
     
     [Fact]
@@ -100,7 +100,7 @@ public class WuzhTests
         var action = () => new WuzhInterpreter(input, "", debug: true);
         
         // Assert
-        action.Should().Throw<ParserException>();
+        action.ShouldThrow<ParserException>();
     }
     
     [Fact]
@@ -117,7 +117,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
         
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -133,7 +133,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Theory]
@@ -170,7 +170,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -187,7 +187,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -206,7 +206,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -223,7 +223,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -245,7 +245,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -267,7 +267,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -283,7 +283,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -305,7 +305,7 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
     
     [Fact]
@@ -327,6 +327,6 @@ public class WuzhTests
         var action = () => interpreter.Run();
 
         // Assert
-        action.Should().Throw<InterpreterException>();
+        action.ShouldThrow<InterpreterException>();
     }
 }

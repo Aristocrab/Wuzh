@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using Shouldly;
 
 namespace Wuzh.Tests;
 
@@ -23,7 +23,7 @@ public class WuzhExamplesTests
         };
         
         // Assert
-        action.Should().NotThrow();
+        action.ShouldNotThrow();
     }
     
     [Fact]
@@ -39,6 +39,6 @@ public class WuzhExamplesTests
         var action = () => interpreter.Run();
         
         // Assert
-        action.Should().NotThrow();
+        action.ShouldNotThrow();
     }
 }
