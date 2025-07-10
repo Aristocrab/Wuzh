@@ -19,7 +19,6 @@
 
     <ItemGroup>
       <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
-      <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
       <PackageReference Include="Roslynator.Analyzers" Version="4.13.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
