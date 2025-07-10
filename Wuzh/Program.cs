@@ -2,7 +2,7 @@
 
 string input;
 
-const string version = "0.3";
+const string version = "0.4";
 var file = "test.wuzh";
 
 if(args.Length == 0)
@@ -27,7 +27,7 @@ else
 
     if (File.Exists(file))
     {
-        input = File.ReadAllText(file);
+        input = await File.ReadAllTextAsync(file);
     }
     else
     {
