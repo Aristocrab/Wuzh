@@ -10,6 +10,7 @@
 
     <PropertyGroup>
       <PublishAot>true</PublishAot>
+      <OptimizationPreference>Speed</OptimizationPreference>
     </PropertyGroup>
 
     <ItemGroup>
