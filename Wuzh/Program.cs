@@ -2,7 +2,7 @@
 
 string input;
 
-const string version = "0.3";
+const string version = "0.4";
 var file = "test.wuzh";
 
 if(args.Length == 0)
