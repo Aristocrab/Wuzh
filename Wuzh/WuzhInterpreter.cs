@@ -8,8 +8,8 @@ namespace Wuzh;
 public class WuzhInterpreter
 {
     private readonly bool _debug;
-    private readonly WuzhVisitor _visitor = null!;
-    private readonly WuzhParser.ProgramContext _programContext = null!;
+    private readonly WuzhVisitor _visitor;
+    private readonly WuzhParser.ProgramContext _programContext;
     private readonly bool _error;
 
     public WuzhInterpreter(string input, string filename, bool debug = false)

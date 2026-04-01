@@ -9,7 +9,7 @@ public static class DictionaryFunctions
     
     public static List<object> GetKeys(Dictionary<string, object> dict)
     {
-        return dict.Keys.Select(x => (object)x).ToList();
+        return dict.Keys.Select(object (x) => x).ToList();
     }
     
     public static List<object> GetValues(Dictionary<string, object> dict)
