@@ -931,7 +931,7 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
 
     public override object VisitArrayIndexing(WuzhParser.ArrayIndexingContext context)
     {
-        object indexValue = default!;
+        object indexValue = null!;
             
         // Index
         var index = context.index();
@@ -1022,14 +1022,14 @@ public class WuzhVisitor : WuzhBaseVisitor<object>
                 var dict = (Dictionary<string, object>)variable.Value;
                 var key = indexValue.ToString() ?? "";
 
-                if (!dict.ContainsKey(key))
+                if (!dict.TryGetValue(key, out var value))
                 {
                     throw _exceptionsFactory.DictionaryDoesNotContainKey(key, 
                         index.Start.Line, 
                         index.Start.Column);
                 }
                 
-                return dict[key];
+                return value;
             }
         }
         if (context.arrayOrVariable().array() != null)
